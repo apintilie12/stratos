@@ -11,20 +11,27 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private String flightNumber;
 
     @Column(nullable = false)
-    private String password;
+    private String departureAirport;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private String arrivalAirport;
+
+    @Column(nullable = false)
+    private String departureTime;
+
+    @Column(nullable = false)
+    private String arrivalTime;
+
+    @ManyToOne
+    private Aircraft aircraft;
 
 }
-

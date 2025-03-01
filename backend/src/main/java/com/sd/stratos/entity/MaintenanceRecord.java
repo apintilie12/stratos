@@ -11,20 +11,25 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class MaintenanceRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(nullable = false)
-    private String password;
+    @ManyToOne
+    private Aircraft aircraft;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private MaintenanceType type;
 
+    @Column(nullable = false)
+    private String startDate;
+
+    @Column(nullable = false)
+    private String endDate;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MaintenanceStatus status;
 }
-
