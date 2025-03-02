@@ -1,0 +1,27 @@
+@import url(./colors.css);
+
+.user-entry {
+    display: flex; /* Flex container for the row layout */
+    justify-content: space-between; /* Space between the user info and actions */
+    align-items: center; /* Vertically center the items */
+    padding: 10px;
+    border: 3px solid var(--secondary-color); /* Optional: Add a border to separate each user entry */
+    border-radius: 10px;
+    margin-bottom: 10px; /* Optional: Space between entries */
+}
+
+.user-info {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+}
+
+.user-actions {
+    display: flex; /* Flex container for buttons */
+    gap: 10px; /* Space between the buttons */
+}
+
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+}

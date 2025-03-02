@@ -1,0 +1,32 @@
+@import url('./colors.css');
+
+body {
+  background-color: var(--background-color);
+  padding: 0;
+  color: var(--secondary-color);
+  font-size: calc(10px + 1vmin);
+}
+
+.edit-button {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    border: 1px solid var(--primary-color);
+    color: white;
+    font-size: calc(10px + 1vmin);
+}
+
+.delete-button {
+    background-color: var(--soft-red);
+    border-radius: 10px;
+    border: 1px solid var(--soft-red);
+    color: white;
+    font-size: calc(10px + 1vmin);
+}
+
+.add-button {
+    background-color: var(--soft-green);
+    border-radius: 10px;
+    border: 1px solid var(--soft-green);
+    color: white;
+    font-size: calc(10px + 1vmin);
+}
