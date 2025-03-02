@@ -2,6 +2,7 @@ package com.sd.stratos.controller;
 
 
 import com.sd.stratos.entity.User;
+import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,11 @@ public class UserController {
     @GetMapping
     public List<User> findAll() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/roles")
+    public List<UserRole> findAllRoles() {
+        return userService.getAllUserRoles();
     }
 
     @GetMapping("/{id}")

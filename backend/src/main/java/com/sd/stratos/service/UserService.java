@@ -1,12 +1,14 @@
 package com.sd.stratos.service;
 
 import com.sd.stratos.entity.User;
+import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,5 +44,9 @@ public class UserService {
 
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
+    }
+
+    public List<UserRole> getAllUserRoles() {
+        return List.of(UserRole.values());
     }
 }

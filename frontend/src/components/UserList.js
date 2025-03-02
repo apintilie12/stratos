@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import UserEntry from "../components/UserEntry"; 
 import "../styles/UserList.css"
+import EditUserForm from "./EditUserForm";
 
 class UserList extends Component {
   constructor(props) {
@@ -9,9 +10,12 @@ class UserList extends Component {
       users: [],
       isLoading: true,
       error: null,
+      editingUser: null,
     };
     this.remove = this.remove.bind(this);
     this.edit = this.edit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
   // Fetch users when the component mounts
@@ -30,8 +34,40 @@ class UserList extends Component {
     alert(`Remove user with ID: ${userId}`);
   }
 
-  edit(userId) {
-    alert(`Edit user with ID: ${userId}`);
+  edit(user) {
+    this.setState({editingUser: user});
+  }
+
+  async handleSave(updatedUser) {
+    try {
+      const apiURL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiURL}/users/${updatedUser.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type" : "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if(!response.ok) {
+        throw new Error("Failed to update user");
+      }
+      
+      const updatedUserData = await response.json();
+    
+      this.setState(prevState => ({
+        users: prevState.users.map(user =>
+          user.id === updatedUser.id ? updatedUserData : user
+        ),
+        editingUser: null,
+      }));
+    } catch (error) {
+      console.error("Error updating user: ", error);
+    }
+  }
+
+  handleCancel() {
+    this.setState({editingUser : null});
   }
 
   addUser() {
@@ -39,7 +75,7 @@ class UserList extends Component {
   }
 
   render() {
-    const { users, isLoading, error } = this.state;
+    const { users, isLoading, error, editingUser } = this.state;
 
     if (isLoading) {
       return <div>Loading...</div>;
@@ -60,11 +96,22 @@ class UserList extends Component {
             <UserEntry
               key={user.id}
               user={user}
-              onEdit={this.edit}
+              onEdit={() =>this.edit(user)}
               onDelete={this.remove}
             />
           ))}
         </div>
+        {editingUser && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <EditUserForm
+                user={editingUser}
+                onSave={this.handleSave}
+                onCancel={this.handleCancel}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
