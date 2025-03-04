@@ -8,8 +8,8 @@ const UserEntry = ({user, onEdit, onDelete}) => {
                 <p>{user.role}</p>
             </div>
             <div className="user-actions">
-                <button className="edit-button" onClick={() => onEdit(user.id)}>Edit</button>
-                <button className="delete-button" onClick={() => onDelete(user.id)}>Delete</button>
+                <button class="edit button" onClick={() => onEdit(user.id)}>Edit</button>
+                <button class="negative button" onClick={() => onDelete(user.id)}>Delete</button>
             </div>
         </div>
     );

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import UserEntry from "../components/UserEntry"; 
 import "../styles/UserList.css"
 import UserForm from "./UserForm";
+import ConfirmationModal from "./ConfirmationModal";
 
 class UserList extends Component {
   constructor(props) {
@@ -12,9 +13,12 @@ class UserList extends Component {
       error: null,
       editingUser: null,
       isAddingUser: false,
+      userToDelete: null,
+      isConfirmingDelete: false,
     };
-    this.remove = this.remove.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     this.edit = this.edit.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.addUser = this.addUser.bind(this);
@@ -31,12 +35,31 @@ class UserList extends Component {
     }
   }
 
-  remove(userId) {
-    alert(`Remove user with ID: ${userId}`);
+  async handleDelete() {
+    try {
+      const {userToDelete} = this.state
+      const apiURL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiURL}/users/${userToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if(!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      this.setState((prevState) => ({
+        users: prevState.users.filter((user) => user.id !== userToDelete.id),
+        isConfirmingDelete: false,
+        userToDelete: null,
+      }));
+
+    }catch(error) {
+      console.log("Error deleting user: ", error); 
+    }
   }
 
   edit(user) {
-    this.setState({editingUser: user});
+    this.setState({editingUser: user, isAddingUser: false});
   }
 
   async handleSave(user) {
@@ -102,15 +125,19 @@ class UserList extends Component {
   }
 
   handleCancel() {
-    this.setState({editingUser : null, isAddingUser: false});
+    this.setState({editingUser : null, isAddingUser: false, isConfirmingDelete: false});
   }
 
   addUser() {
-    this.setState({isAddingUser: true});
+    this.setState({isAddingUser: true, editingUser: null});
+  }
+
+  deleteUser(user) {
+    this.setState({isAddingUser: false, editingUser: null, isConfirmingDelete: true, userToDelete: user});
   }
 
   render() {
-    const { users, isLoading, error, editingUser, isAddingUser } = this.state;
+    const { users, isLoading, error, editingUser, isAddingUser, isConfirmingDelete } = this.state;
 
     if (isLoading) {
       return <div>Loading...</div>;
@@ -124,7 +151,7 @@ class UserList extends Component {
       <div className="user-list">
         <div className="user-list-header">
           <h2>Users</h2>
-          <button className="add-button" onClick={() => this.addUser()}>Add User</button>
+          <button class="positive button" onClick={() => this.addUser()}>Add User</button>
         </div>
         <div className="user-list-body">
           {users.map((user) => (
@@ -132,21 +159,24 @@ class UserList extends Component {
               key={user.id}
               user={user}
               onEdit={() =>this.edit(user)}
-              onDelete={this.remove}
+              onDelete={() => this.deleteUser(user)}
             />
           ))}
         </div>
-        {(editingUser || isAddingUser) && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <UserForm
-                initialUser={editingUser || {}}
-                onSave={this.handleSave}
-                onCancel={this.handleCancel}
-                isEditing={!editingUser}
-              />
-            </div>
-          </div>
+        {(editingUser || isAddingUser) && !isConfirmingDelete && (
+            <UserForm
+              initialUser={editingUser || {}}
+              onSave={this.handleSave}
+              onCancel={this.handleCancel}
+              isEditing={!!editingUser}
+            />
+        )}
+        {(isConfirmingDelete) && (
+          <ConfirmationModal
+            message={"Are you sure you want to delete this user?"}
+            onConfirm={this.handleDelete}
+            onCancel={this.handleCancel}
+          />
         )}
       </div>
     );
