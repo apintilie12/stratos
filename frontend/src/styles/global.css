@@ -43,3 +43,8 @@ body {
   align-items: center;
   z-index: 1000;
 }
+
+.error-message {
+  font-size: 1rem;
+  color: red;
+}

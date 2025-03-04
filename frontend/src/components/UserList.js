@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import UserEntry from "../components/UserEntry"; 
 import "../styles/UserList.css"
-import EditUserForm from "./EditUserForm";
+import UserForm from "./UserForm";
 
 class UserList extends Component {
   constructor(props) {
@@ -11,14 +11,15 @@ class UserList extends Component {
       isLoading: true,
       error: null,
       editingUser: null,
+      isAddingUser: false,
     };
     this.remove = this.remove.bind(this);
     this.edit = this.edit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleSave = this.handleSave.bind(this);
+    this.addUser = this.addUser.bind(this);
   }
 
-  // Fetch users when the component mounts
   async componentDidMount() {
     try {
       const apiURL = process.env.REACT_APP_API_URL;
@@ -38,7 +39,15 @@ class UserList extends Component {
     this.setState({editingUser: user});
   }
 
-  async handleSave(updatedUser) {
+  async handleSave(user) {
+    if(user.id) {
+      this.handleEdit(user);
+    } else {
+      this.handleAdd(user);
+    }
+  }
+
+  async handleEdit(updatedUser) {
     try {
       const apiURL = process.env.REACT_APP_API_URL;
       const response = await fetch(`${apiURL}/users/${updatedUser.id}`, {
@@ -66,16 +75,42 @@ class UserList extends Component {
     }
   }
 
+  async handleAdd(newUser) {
+    try {
+      const apiURL = process.env.REACT_APP_API_URL;
+      const response = await fetch( `${apiURL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newUser)
+      });
+
+      if(!response.ok) {
+        throw new Error("Failed to add user!");
+      }
+
+      const addedUser = await response.json();
+      this.setState((prevState) => ({
+        users: [...prevState.users, addedUser],
+        isAddingUser: false
+      }));
+
+    } catch(error) {
+      console.error("Error adding user: ", error);
+    }
+  }
+
   handleCancel() {
-    this.setState({editingUser : null});
+    this.setState({editingUser : null, isAddingUser: false});
   }
 
   addUser() {
-    alert("Adding new user");
+    this.setState({isAddingUser: true});
   }
 
   render() {
-    const { users, isLoading, error, editingUser } = this.state;
+    const { users, isLoading, error, editingUser, isAddingUser } = this.state;
 
     if (isLoading) {
       return <div>Loading...</div>;
@@ -101,13 +136,14 @@ class UserList extends Component {
             />
           ))}
         </div>
-        {editingUser && (
+        {(editingUser || isAddingUser) && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <EditUserForm
-                user={editingUser}
+              <UserForm
+                initialUser={editingUser || {}}
                 onSave={this.handleSave}
                 onCancel={this.handleCancel}
+                isEditing={!editingUser}
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 @import url("./colors.css");
 
-.edit-user-form {
+.user-form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,7 +8,7 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  width: 500px;
   max-width: 90%;
   margin: 0 auto; 
 }
@@ -34,9 +34,10 @@ label {
 }
 
 label span {
-    width: 120px;
+    width: 40%;
     text-align: right;
     margin-right: 10px;
+    font-size: 1.2rem;
 }
 
 label input,
@@ -47,7 +48,7 @@ label select {
   font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: 200px; /* Control width of inputs/selectors */
+  width: 200px;
 }
 
 .form-buttons {
@@ -69,4 +70,13 @@ label select {
 
 .form-buttons button[type="button"] {
   background-color: var(--soft-red);
+}
+
+.error-message {
+  flex-grow: 1;
+  margin-left: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  text-align: left;
+  align-items: top;
 }
