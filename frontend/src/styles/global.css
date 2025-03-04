@@ -60,3 +60,16 @@ body {
   color: red;
   text-align: center;
 }
+
+.logout-button {
+  background-color: var(--bg1);
+  color: #fff;
+  border-radius: 10px;
+  border: none;
+  width: 100px;
+  font-size: calc(10px + 1vmin);
+}
+
+.logout-button:hover {
+  background-color: var(--bg2);
+}

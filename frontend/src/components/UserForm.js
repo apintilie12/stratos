@@ -41,7 +41,7 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
         <div class="modal-overlay">
             <div class="modal-content user-form">
                 <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
-                <form class="user-form" Submit={handleSubmit}>
+                <form class="user-form" onSubmit={handleSubmit}>
                     <label className={styles.label}>
                         <span className={styles.span}>Username:</span>
                         <input
