@@ -151,7 +151,7 @@ class UserList extends Component {
       <div className="user-list">
         <div className="user-list-header">
           <h2>Users</h2>
-          <button class="positive button" onClick={() => this.addUser()}>Add User</button>
+          <button className="positive button" onClick={() => this.addUser()}>Add User</button>
         </div>
         <div className="user-list-body">
           {users.map((user) => (

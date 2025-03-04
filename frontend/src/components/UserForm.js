@@ -1,5 +1,5 @@
 import {useEffect, useState } from "react"
-import "../styles/UserForm.css"
+import styles from "../styles/UserForm.module.css"
 
 const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
     const [formData, setFormData] = useState(initialUser);
@@ -41,20 +41,23 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
         <div class="modal-overlay">
             <div class="modal-content user-form">
                 <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        <span>Username:</span>
+                <form class="user-form" Submit={handleSubmit}>
+                    <label className={styles.label}>
+                        <span className={styles.span}>Username:</span>
                         <input
+                            className={styles.input}
                             type="text"
                             name="username"
                             value={formData.username || ""}
                             onChange={handleChange}
+                            placeholder={isEditing ? "" : "Enter username"}
                             required
                         />
                     </label>
-                    <label>
-                        <span>Password:</span>
+                    <label className={styles.label}>
+                        <span className={styles.span}>Password:</span>
                         <input
+                            className={styles.input}
                             type="text"
                             name="password"
                             value={formData.password || ""}
@@ -63,9 +66,10 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
                             required={!isEditing}
                         />
                     </label>
-                    <label>
-                        <span>Confirm Password:</span>
+                    <label className={styles.label}>
+                        <span className={styles.span}>Confirm Password:</span>
                         <input
+                            className={styles.input}
                             type="text"
                             name="confirmPassword"
                             value={confirmPasswordValue || ""}
@@ -75,13 +79,14 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
                         />
                     </label>
                     {error && 
-                        <label>
+                        <label className={styles.label}>
                             <span className="placeholder"></span>
                             <p className="error-message">{error}</p>
                         </label>}
-                    <label>
-                        <span>Role:</span>
+                    <label className={styles.label}>
+                        <span className={styles.span}>Role:</span>
                         <select
+                            className={styles.select}
                             name="role"
                             value={formData.role || ""}
                             onChange={handleChange}

@@ -1,13 +1,13 @@
 @import url(./colors.css);
 
 .user-entry {
-    display: flex; /* Flex container for the row layout */
-    justify-content: space-between; /* Space between the user info and actions */
-    align-items: center; /* Vertically center the items */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
     padding: 10px;
-    border: 3px solid var(--secondary-color); /* Optional: Add a border to separate each user entry */
+    border: 3px solid var(--secondary-color); 
     border-radius: 10px;
-    margin-bottom: 10px; /* Optional: Space between entries */
+    margin-bottom: 10px; 
 }
 
 .user-info {
@@ -22,8 +22,8 @@
 }
 
 .user-actions {
-    display: flex; /* Flex container for buttons */
-    gap: 10px; /* Space between the buttons */
+    display: flex; 
+    gap: 10px; 
 }
 
 button {
