@@ -1,7 +1,15 @@
+@import url(./colors.css);
+
 .user-list-body {
     width: 100%;
+    height: 600px;
+    scroll-behavior: smooth;
     display: flex;
     flex-direction: column; 
+    overflow-y: auto;
+    border: 2px solid #fff;
+    border-radius:10px ;
+    background-color: var(--secondary-color);
 }
 
 .user-list-header {

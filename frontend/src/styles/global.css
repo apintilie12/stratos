@@ -3,7 +3,7 @@
 body {
   background-color: var(--background-color);
   padding: 0;
-  color: var(--secondary-color);
+  color: var(--text-color);
   font-size: calc(10px + 1vmin);
 }
 

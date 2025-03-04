@@ -7,7 +7,7 @@ class AdminDashboard extends Component {
         return (
         <div className="App">
             <header className="App-header">
-            <h1>Admin Home Page</h1>
+            <h1>Admin Dashboard</h1>
             </header>
             <div className='App-body'>
             <div className='App-intro'>
