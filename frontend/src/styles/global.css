@@ -58,4 +58,5 @@ body {
 .error-message {
   font-size: 1rem;
   color: red;
+  text-align: center;
 }

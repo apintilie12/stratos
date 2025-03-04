@@ -1,15 +1,46 @@
 import {useState } from "react"
 import styles from '../styles/LoginPage.module.css'
+import { useNavigate } from "react-router-dom";
 
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Username: ", username);
-        console.log("Password: ", password);
+        try {
+            const apiURL = process.env.REACT_APP_API_URL;
+            const response = await fetch(`${apiURL}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({username, password}),
+            })
+
+            const data = await response.json();
+            if(response.ok) {
+                const role = data;
+                localStorage.setItem("userRole", role);
+
+                if(role === "ADMIN") {
+                    navigate("/admin/dashboard");
+                } else if(role === "ENGINEER") {
+                    setError("Login as ENGINEER");
+                } else if(role === "PILOT") {
+                    setError("Login as PILOT");
+                } else {
+                    setError("Unknown role, please contact support");
+                }
+            } else {
+                setError(data);
+            }
+        } catch (error) {
+            setError("Login failed, please try again");
+        }
     }
 
     return (
@@ -39,6 +70,7 @@ const LoginPage = () => {
                         required
                     />
                     </div>
+                    {error && <div className="form-group error-message">{error}</div>}
                     <button className={styles.button} type="submit">Login</button>
                 </form>
             </div>
