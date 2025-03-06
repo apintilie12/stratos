@@ -1,15 +1,25 @@
-import {useEffect, useState } from "react"
+import {User} from "../types/user.types.ts";
+import {useEffect, useState} from "react";
 import styles from "../styles/UserForm.module.css"
 
-const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
-    const [formData, setFormData] = useState(initialUser);
-    const [roles, setRoles] = useState([]);
-    const [confirmPasswordValue, setConfirmPasswordValue] = useState(initialUser.password);
-    const [error, setError] = useState("");
+
+interface UserFormProps {
+    initialUser?: User;
+    onSave: (user: User) => void;
+    onCancel: () => void;
+    isEditing: boolean;
+}
+
+const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEditing}) => {
+    const defaultUser: User = {username: "", password: "", role: ""};
+    const [formState, setFormState] = useState<User>(initialUser || defaultUser);
+    const [roles, setRoles] = useState<string[]>([]);
+    const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>(initialUser?.password || '');
+    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         const fetchRoles = async () => {
-            const apiURL = process.env.REACT_APP_API_URL;
+            const apiURL = import.meta.env.VITE_APP_API_URL;
             const response = await fetch(`${apiURL}/users/roles`);
             const data = await response.json();
             setRoles(data);
@@ -18,37 +28,37 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
         fetchRoles();
     }, []);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = e.target;
-        if(name === "confirmPassword") {
+        if (name === "confirmPassword") {
             setConfirmPasswordValue(value);
         } else {
-            setFormData({ ...formData, [name]: value});
+            setFormState({...formState, [name]: value});
         }
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if(formData.password !== confirmPasswordValue) {
+        if (formState.password !== confirmPasswordValue) {
             setError("Passwords do not match!");
             return;
         }
         setError("");
-        onSave(formData);
+        onSave(formState);
     }
 
     return (
-        <div class="modal-overlay">
-            <div class="modal-content user-form">
+        <div className="modal-overlay">
+            <div className="modal-content user-form">
                 <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
-                <form class="user-form" onSubmit={handleSubmit}>
+                <form className={styles.userForm} onSubmit={handleSubmit}>
                     <label className={styles.label}>
                         <span className={styles.span}>Username:</span>
                         <input
                             className={styles.input}
                             type="text"
                             name="username"
-                            value={formData.username || ""}
+                            value={formState.username}
                             onChange={handleChange}
                             placeholder={isEditing ? "" : "Enter username"}
                             required
@@ -58,11 +68,11 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
                         <span className={styles.span}>Password:</span>
                         <input
                             className={styles.input}
-                            type="text"
+                            type="password"
                             name="password"
-                            value={formData.password || ""}
+                            value={formState.password}
                             onChange={handleChange}
-                            placeholder={isEditing ? "": "Enter password"}
+                            placeholder={isEditing ? "" : "Enter password"}
                             required={!isEditing}
                         />
                     </label>
@@ -70,27 +80,27 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
                         <span className={styles.span}>Confirm Password:</span>
                         <input
                             className={styles.input}
-                            type="text"
+                            type="password"
                             name="confirmPassword"
-                            value={confirmPasswordValue || ""}
+                            value={confirmPasswordValue}
                             onChange={handleChange}
-                            placeholder={isEditing ? "": "Confirm password"}
+                            placeholder={isEditing ? "" : "Confirm password"}
                             required={!isEditing}
                         />
                     </label>
-                    {error && 
+                    {error &&
                         <label className={styles.label}>
                             <span className="placeholder"></span>
-                            <p className="error-message">{error}</p>
+                            <p className={styles.errorMessage}>{error}</p>
                         </label>}
                     <label className={styles.label}>
                         <span className={styles.span}>Role:</span>
                         <select
                             className={styles.select}
                             name="role"
-                            value={formData.role || ""}
+                            value={formState.role}
                             onChange={handleChange}
-                        >  
+                        >
                             <option value="" disabled>Select a role</option>
                             {roles.map(role => (
                                 <option key={role} value={role}>
@@ -100,13 +110,14 @@ const UserForm = ({initialUser = {}, onSave, onCancel, isEditing = false}) => {
                         </select>
                     </label>
                     <div className="form-buttons">
-                        <button type="submit" class="positive button">{isEditing ? "Save" : "Create User"}</button>
-                        <button type="button" class="negative button" onClick={onCancel}>Cancel</button>
+                        <button type="submit" className="positive button">{isEditing ? "Save" : "Create User"}</button>
+                        <button type="button" className="negative button" onClick={onCancel}>Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
-    )
+    );
+
 }
 
 export default UserForm;

@@ -1,0 +1,29 @@
+.userEntry {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+}
+
+.userEntry:hover {
+    border-color: var(--hover-border-color);
+
+}
+
+.userInfo {
+    display: flex;
+    padding: 10px;
+    text-align: left;
+}
+
+.userInfo p:first-child {
+    width: 150px;
+}
+
+.userActions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
