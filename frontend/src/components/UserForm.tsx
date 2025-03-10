@@ -8,14 +8,15 @@ interface UserFormProps {
     onSave: (user: User) => void;
     onCancel: () => void;
     isEditing: boolean;
+    apiError: string | null;
 }
 
-const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEditing}) => {
+const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEditing, apiError}) => {
     const defaultUser: User = {username: "", password: "", role: ""};
     const [formState, setFormState] = useState<User>(initialUser || defaultUser);
     const [roles, setRoles] = useState<string[]>([]);
     const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>(initialUser?.password || '');
-    const [error, setError] = useState<string>('');
+    const [error, setError] = useState<string | null>(apiError);
 
     useEffect(() => {
         const fetchRoles = async () => {
@@ -25,8 +26,13 @@ const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEdi
             setRoles(data);
         }
 
-        fetchRoles();
-    }, []);
+        if(apiError === null){
+            fetchRoles();
+            console.log("first render")
+        }
+        setError(apiError);
+        console.log("Effect re-rendering:" + apiError);
+    }, [apiError]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = e.target;
@@ -35,6 +41,7 @@ const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEdi
         } else {
             setFormState({...formState, [name]: value});
         }
+        setError(null);
     }
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,7 +50,13 @@ const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEdi
             setError("Passwords do not match!");
             return;
         }
-        setError("");
+        console.log(formState);
+        console.log(error);
+        if(error !== null) {
+            setError(apiError);
+            return;
+        }
+        setError(null);
         onSave(formState);
     }
 

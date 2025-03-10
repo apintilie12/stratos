@@ -1,7 +1,10 @@
 package com.sd.stratos.service;
 
+import com.sd.stratos.dto.UserCreateDTO;
+import com.sd.stratos.dto.UserUpdateDTO;
 import com.sd.stratos.entity.User;
 import com.sd.stratos.entity.UserRole;
+import com.sd.stratos.exception.UsernameAlreadyExistsException;
 import com.sd.stratos.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +25,14 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    public User addUser(User user) {
+    public User addUser(UserCreateDTO userCreateDTO) {
+        if(userRepository.findByUsername(userCreateDTO.username()) != null) {
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
+        User user = new User();
+        user.setUsername(userCreateDTO.username());
+        user.setPassword(userCreateDTO.password());
+        user.setRole(userCreateDTO.role());
         return userRepository.save(user);
     }
 
@@ -30,13 +40,13 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User updateUser(UUID id, User user) {
+    public User updateUser(UUID id, UserUpdateDTO userUpdateDTO) {
         Optional<User> existingUser = userRepository.findById(id);
         if(existingUser.isPresent()) {
             User updatedUser = existingUser.get();
-            updatedUser.setUsername(user.getUsername());
-            updatedUser.setPassword(user.getPassword());
-            updatedUser.setRole(user.getRole());
+            updatedUser.setUsername(userUpdateDTO.username());
+            updatedUser.setPassword(userUpdateDTO.password());
+            updatedUser.setRole(userUpdateDTO.role());
             return userRepository.save(updatedUser);
          }
         throw new IllegalStateException("User not found");

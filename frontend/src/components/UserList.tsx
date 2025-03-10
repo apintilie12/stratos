@@ -14,6 +14,7 @@ const UserList: React.FC = () => {
     const [isAddingUser, setIsAddingUser] = useState<boolean>(false);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
     const [isConfirmingDelete, setIsConfirmingDelete] = useState<boolean>(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -109,13 +110,19 @@ const UserList: React.FC = () => {
                 body: JSON.stringify(newUser),
             });
 
+            const responseData = await response.json();
+            console.log("Tried to add user: " + newUser);
+
             if (!response.ok) {
-                throw new Error("Failed to add user!");
+                const errorMessage = responseData.message || "Failed to add user";
+                setFormError(errorMessage);
+                return;
             }
 
-            const addedUser: User = await response.json();
+            const addedUser: User = responseData;
             setUsers((prevUsers) => [...prevUsers, addedUser]);
             setIsAddingUser(false);
+            setFormError(null);
         } catch (error) {
             console.error("Error adding user: ", error);
         }
@@ -125,6 +132,7 @@ const UserList: React.FC = () => {
         setEditingUser(null);
         setIsAddingUser(false);
         setIsConfirmingDelete(false);
+        setFormError(null);
     };
 
     const addUser = () => {
@@ -173,6 +181,7 @@ const UserList: React.FC = () => {
                     onSave={handleSave}
                     onCancel={handleCancel}
                     isEditing={!!editingUser}
+                    apiError={formError}
                 />
             )}
             {isConfirmingDelete && (

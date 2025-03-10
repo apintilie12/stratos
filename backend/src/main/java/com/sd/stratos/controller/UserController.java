@@ -1,9 +1,12 @@
 package com.sd.stratos.controller;
 
 
+import com.sd.stratos.dto.UserCreateDTO;
+import com.sd.stratos.dto.UserUpdateDTO;
 import com.sd.stratos.entity.User;
 import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,13 +37,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User add(@RequestBody User user) {
-        return userService.addUser(user);
+    public User add(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+        return userService.addUser(userCreateDTO);
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable UUID id, @RequestBody User user) {
-        return userService.updateUser(id, user);
+    public User updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        return userService.updateUser(id, userUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
