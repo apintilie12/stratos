@@ -26,13 +26,11 @@ public class UserService {
         return userRepository.findAll();
     }
     public User addUser(UserCreateDTO userCreateDTO) {
-        if(userRepository.findByUsername(userCreateDTO.username()) != null) {
-            throw new UsernameAlreadyExistsException("Username already exists");
-        }
         User user = new User();
         user.setUsername(userCreateDTO.username());
         user.setPassword(userCreateDTO.password());
         user.setRole(userCreateDTO.role());
+        validateUser(user);
         return userRepository.save(user);
     }
 
@@ -58,5 +56,11 @@ public class UserService {
 
     public List<UserRole> getAllUserRoles() {
         return List.of(UserRole.values());
+    }
+
+    public void validateUser(User user) {
+        if(userRepository.findByUsername(user.getUsername()) != null) {
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
     }
 }

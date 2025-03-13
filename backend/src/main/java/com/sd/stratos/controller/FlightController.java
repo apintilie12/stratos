@@ -1,5 +1,7 @@
 package com.sd.stratos.controller;
 
+import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.service.FlightService;
 import jakarta.validation.Valid;
@@ -26,13 +28,13 @@ public class FlightController {
     }
 
     @PostMapping
-    public Flight createFlight(@Valid @RequestBody Flight flight) {
-        return flightService.addFlight(flight);
+    public Flight createFlight(@Valid @RequestBody FlightCreateDTO flightDTO) {
+        return flightService.addFlight(flightDTO);
     }
 
     @PutMapping("/{id}")
-    public Flight updateFlight(@PathVariable UUID id, @RequestBody Flight flight) {
-        return flightService.updateFlight(id, flight);
+    public Flight updateFlight(@PathVariable UUID id, @RequestBody FlightUpdateDTO flightUpdateDTO) {
+        return flightService.updateFlight(id, flightUpdateDTO);
     }
 
     @DeleteMapping("/{id}")

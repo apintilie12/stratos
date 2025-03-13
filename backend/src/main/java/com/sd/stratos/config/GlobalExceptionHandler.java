@@ -32,6 +32,13 @@ public class GlobalExceptionHandler {
         return errorMap;
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalStateException(IllegalStateException ex) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("error", IllegalStateException.class.getSimpleName());
+        errorMap.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+    }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {

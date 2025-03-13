@@ -1,10 +1,14 @@
 package com.sd.stratos.service;
 
+import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
 import com.sd.stratos.exception.InvalidFlightEndpointsException;
 import com.sd.stratos.exception.InvalidFlightTimesException;
+import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.FlightRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FlightService {
     private final FlightRepository flightRepository;
+    private final AircraftRepository aircraftRepository;
 
     public List<Flight> getAllFlights() {
         return flightRepository.findAll();
@@ -26,24 +31,32 @@ public class FlightService {
         return flightRepository.findById(id).orElse(null);
     }
 
-    public Flight addFlight(Flight flight) {
-        if(flightRepository.findByFlightNumber(flight.getFlightNumber()) != null) {
+    public Flight addFlight(@Valid FlightCreateDTO flightCreateDTO) {
+        if(flightRepository.findByFlightNumber(flightCreateDTO.flightNumber()) != null) {
             throw new FlightNumberAlreadyExistsException("Flight number already exists");
         }
-        validateFlight(flight);
-        return flightRepository.save(flight);
+        Flight flightToAdd = new Flight();
+        flightToAdd.setFlightNumber(flightCreateDTO.flightNumber());
+        flightToAdd.setArrivalTime(flightCreateDTO.arrivalTime());
+        flightToAdd.setDepartureTime(flightCreateDTO.departureTime());
+        flightToAdd.setDepartureAirport(flightCreateDTO.departureAirport());
+        flightToAdd.setArrivalAirport(flightCreateDTO.arrivalAirport());
+        flightToAdd.setAircraft(flightCreateDTO.aircraft());
+        validateFlight(flightToAdd);
+        return flightRepository.save(flightToAdd);
     }
 
-    public Flight updateFlight(UUID id, Flight flight) {
+    public Flight updateFlight(UUID id, FlightUpdateDTO flight) {
         Optional<Flight> existingFlight = flightRepository.findById(id);
         if (existingFlight.isPresent()) {
             Flight updatedFlight = existingFlight.get();
-            updatedFlight.setFlightNumber(flight.getFlightNumber());
-            updatedFlight.setDepartureTime(flight.getDepartureTime());
-            updatedFlight.setArrivalTime(flight.getArrivalTime());
-            updatedFlight.setDepartureAirport(flight.getDepartureAirport());
-            updatedFlight.setArrivalAirport(flight.getArrivalAirport());
-            updatedFlight.setAircraft(flight.getAircraft());
+            updatedFlight.setFlightNumber(flight.flightNumber());
+            updatedFlight.setDepartureTime(flight.departureTime());
+            updatedFlight.setArrivalTime(flight.arrivalTime());
+            updatedFlight.setDepartureAirport(flight.departureAirport());
+            updatedFlight.setArrivalAirport(flight.arrivalAirport());
+            updatedFlight.setAircraft(flight.aircraft());
+            validateFlight(updatedFlight);
             return flightRepository.save(updatedFlight);
         }
         throw new IllegalArgumentException("Flight not found");
@@ -66,6 +79,9 @@ public class FlightService {
         validateTimes(flight.getDepartureTime(), flight.getArrivalTime());
         if(flight.getDepartureAirport().equals(flight.getArrivalAirport())) {
             throw new InvalidFlightEndpointsException("Arrival and departure airports must be different");
+        }
+        if(aircraftRepository.findById(flight.getAircraft().getId()).isEmpty()) {
+            throw new IllegalStateException("Aircraft not in database");
         }
     }
 }

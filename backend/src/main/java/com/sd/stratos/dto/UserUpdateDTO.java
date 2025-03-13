@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record UserUpdateDTO(
-   @NotBlank(message = "ID is required")
+   @NotNull(message = "ID is required")
    UUID id,
 
    @NotBlank(message = "Username is required")
