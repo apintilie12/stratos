@@ -1,14 +1,11 @@
 package com.sd.stratos.config;
 
-import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
-import com.sd.stratos.exception.InvalidFlightEndpointsException;
-import com.sd.stratos.exception.InvalidFlightTimesException;
-import com.sd.stratos.exception.UsernameAlreadyExistsException;
+import com.sd.stratos.exception.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,6 +27,14 @@ public class GlobalExceptionHandler {
         errorMap.put("message", result.getFieldError().getDefaultMessage());
         log.error("Validation error: {}", errorMap);
         return errorMap;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("error", ConstraintViolationException.class.getSimpleName());
+        errorMap.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -69,6 +74,14 @@ public class GlobalExceptionHandler {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("error", InvalidFlightEndpointsException.class.getSimpleName());
         errorMap.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+    }
+
+    @ExceptionHandler(AircraftRegistrationNumberAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleAicraftRegistrationNumberAlreadyExists(AircraftRegistrationNumberAlreadyExistsException aircraftRegistrationNumberAlreadyExistsException) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("error", AircraftRegistrationNumberAlreadyExistsException.class.getSimpleName());
+        errorMap.put("message", aircraftRegistrationNumberAlreadyExistsException.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }
 

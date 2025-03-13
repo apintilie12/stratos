@@ -1,5 +1,7 @@
 package com.sd.stratos.controller;
 
+import com.sd.stratos.dto.AircraftCreateDTO;
+import com.sd.stratos.dto.AircraftUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.service.AircraftService;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +27,13 @@ public class AircraftController {
     }
 
     @PostMapping
-    public Aircraft addAircraft(@RequestBody Aircraft aircraft) {
-        return aircraftService.addAircraft(aircraft);
+    public Aircraft addAircraft(@RequestBody AircraftCreateDTO aircraftCreateDTO) {
+        return aircraftService.addAircraft(aircraftCreateDTO);
     }
 
     @PutMapping("/{id}")
-    public Aircraft updateAircraft(@PathVariable UUID id, @RequestBody Aircraft aircraft) {
-        return aircraftService.updateAircraft(id, aircraft);
+    public Aircraft updateAircraft(@PathVariable UUID id, @RequestBody AircraftUpdateDTO aircraftUpdateDTO) {
+        return aircraftService.updateAircraft(id, aircraftUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
