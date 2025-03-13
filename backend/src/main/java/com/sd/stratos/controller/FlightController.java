@@ -2,6 +2,7 @@ package com.sd.stratos.controller;
 
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.service.FlightService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class FlightController {
     }
 
     @PostMapping
-    public Flight createFlight(@RequestBody Flight flight) {
+    public Flight createFlight(@Valid @RequestBody Flight flight) {
         return flightService.addFlight(flight);
     }
 

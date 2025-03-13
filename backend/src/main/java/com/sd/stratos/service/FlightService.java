@@ -1,10 +1,14 @@
 package com.sd.stratos.service;
 
 import com.sd.stratos.entity.Flight;
+import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
+import com.sd.stratos.exception.InvalidFlightEndpointsException;
+import com.sd.stratos.exception.InvalidFlightTimesException;
 import com.sd.stratos.repository.FlightRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +27,10 @@ public class FlightService {
     }
 
     public Flight addFlight(Flight flight) {
+        if(flightRepository.findByFlightNumber(flight.getFlightNumber()) != null) {
+            throw new FlightNumberAlreadyExistsException("Flight number already exists");
+        }
+        validateFlight(flight);
         return flightRepository.save(flight);
     }
 
@@ -43,5 +51,21 @@ public class FlightService {
 
     public void deleteFlight(UUID id) {
         flightRepository.deleteById(id);
+    }
+
+    private void validateTimes(ZonedDateTime departureTime, ZonedDateTime arrivalTime) {
+        if(departureTime.isAfter(arrivalTime)){
+            throw new InvalidFlightTimesException("Departure time is after arrival time");
+        }
+        if(departureTime.isBefore(ZonedDateTime.now()) || arrivalTime.isBefore(ZonedDateTime.now())){
+            throw new InvalidFlightTimesException("Departure time is before current time");
+        }
+    }
+
+    private void validateFlight(Flight flight) {
+        validateTimes(flight.getDepartureTime(), flight.getArrivalTime());
+        if(flight.getDepartureAirport().equals(flight.getArrivalAirport())) {
+            throw new InvalidFlightEndpointsException("Arrival and departure airports must be different");
+        }
     }
 }
