@@ -53,10 +53,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }
 
-    @ExceptionHandler(InvalidFlightTimesException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidFlightTimesException(InvalidFlightTimesException ex) {
+    @ExceptionHandler(InvalidTimeIntervalException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidTimeIntervalException(InvalidTimeIntervalException ex) {
         Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("error", InvalidFlightTimesException.class.getSimpleName());
+        errorMap.put("error", InvalidTimeIntervalException.class.getSimpleName());
         errorMap.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }

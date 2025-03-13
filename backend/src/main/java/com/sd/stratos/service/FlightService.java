@@ -5,7 +5,7 @@ import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
 import com.sd.stratos.exception.InvalidFlightEndpointsException;
-import com.sd.stratos.exception.InvalidFlightTimesException;
+import com.sd.stratos.exception.InvalidTimeIntervalException;
 import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.FlightRepository;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class FlightService {
         return flightRepository.findById(id).orElse(null);
     }
 
-    public Flight addFlight(@Valid FlightCreateDTO flightCreateDTO) {
+    public Flight addFlight(FlightCreateDTO flightCreateDTO) {
         if(flightRepository.findByFlightNumber(flightCreateDTO.flightNumber()) != null) {
             throw new FlightNumberAlreadyExistsException("Flight number already exists");
         }
@@ -68,10 +68,10 @@ public class FlightService {
 
     private void validateTimes(ZonedDateTime departureTime, ZonedDateTime arrivalTime) {
         if(departureTime.isAfter(arrivalTime)){
-            throw new InvalidFlightTimesException("Departure time is after arrival time");
+            throw new InvalidTimeIntervalException("Departure time is after arrival time");
         }
         if(departureTime.isBefore(ZonedDateTime.now()) || arrivalTime.isBefore(ZonedDateTime.now())){
-            throw new InvalidFlightTimesException("Departure time is before current time");
+            throw new InvalidTimeIntervalException("Departure time is before current time");
         }
     }
 

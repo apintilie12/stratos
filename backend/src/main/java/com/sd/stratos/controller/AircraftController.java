@@ -4,6 +4,7 @@ import com.sd.stratos.dto.AircraftCreateDTO;
 import com.sd.stratos.dto.AircraftUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.service.AircraftService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +28,12 @@ public class AircraftController {
     }
 
     @PostMapping
-    public Aircraft addAircraft(@RequestBody AircraftCreateDTO aircraftCreateDTO) {
+    public Aircraft addAircraft(@Valid @RequestBody AircraftCreateDTO aircraftCreateDTO) {
         return aircraftService.addAircraft(aircraftCreateDTO);
     }
 
     @PutMapping("/{id}")
-    public Aircraft updateAircraft(@PathVariable UUID id, @RequestBody AircraftUpdateDTO aircraftUpdateDTO) {
+    public Aircraft updateAircraft(@PathVariable UUID id, @Valid @RequestBody AircraftUpdateDTO aircraftUpdateDTO) {
         return aircraftService.updateAircraft(id, aircraftUpdateDTO);
     }
 
