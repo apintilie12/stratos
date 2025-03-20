@@ -1,7 +1,16 @@
-import {User} from "../types/user.types.ts";
-import {useEffect, useState} from "react";
-import styles from "../styles/UserForm.module.css"
-
+import { User } from "../types/user.types.ts";
+import { useEffect, useState } from "react";
+import {
+    TextField,
+    Button,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl,
+    FormHelperText,
+    SelectChangeEvent
+} from '@mui/material';
+import styles from "../styles/UserForm.module.css";
 
 interface UserFormProps {
     initialUser?: User;
@@ -11,8 +20,8 @@ interface UserFormProps {
     apiError: string | null;
 }
 
-const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEditing, apiError}) => {
-    const defaultUser: User = {username: "", password: "", role: ""};
+const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEditing, apiError }) => {
+    const defaultUser: User = { username: "", password: "", role: "" };
     const [formState, setFormState] = useState<User>(initialUser || defaultUser);
     const [roles, setRoles] = useState<string[]>([]);
     const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>(initialUser?.password || '');
@@ -24,25 +33,25 @@ const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEdi
             const response = await fetch(`${apiURL}/users/roles`);
             const data = await response.json();
             setRoles(data);
-        }
+        };
 
-        if(apiError === null){
+        if (apiError === null) {
             fetchRoles();
-            console.log("first render")
+            console.log("first render");
         }
         setError(apiError);
         console.log("Effect re-rendering:" + apiError);
     }, [apiError]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
+        const { name, value } = e.target;
         if (name === "confirmPassword") {
             setConfirmPasswordValue(value);
         } else {
-            setFormState({...formState, [name]: value});
+            setFormState({ ...formState, [name]: value });
         }
         setError(null);
-    }
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -52,85 +61,84 @@ const UserForm: React.FC<UserFormProps> = ({initialUser, onSave, onCancel, isEdi
         }
         console.log(formState);
         console.log(error);
-        if(error !== null) {
+        if (error !== null) {
             setError(apiError);
             return;
         }
         setError(null);
         onSave(formState);
-    }
+    };
 
     return (
         <div className="modal-overlay">
             <div className="modal-content user-form">
                 <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
                 <form className={styles.userForm} onSubmit={handleSubmit}>
-                    <label className={styles.label}>
-                        <span className={styles.span}>Username:</span>
-                        <input
-                            className={styles.input}
-                            type="text"
-                            name="username"
-                            value={formState.username}
-                            onChange={handleChange}
-                            placeholder={isEditing ? "" : "Enter username"}
-                            required
-                        />
-                    </label>
-                    <label className={styles.label}>
-                        <span className={styles.span}>Password:</span>
-                        <input
-                            className={styles.input}
-                            type="password"
-                            name="password"
-                            value={formState.password}
-                            onChange={handleChange}
-                            placeholder={isEditing ? "" : "Enter password"}
-                            required={!isEditing}
-                        />
-                    </label>
-                    <label className={styles.label}>
-                        <span className={styles.span}>Confirm Password:</span>
-                        <input
-                            className={styles.input}
-                            type="password"
-                            name="confirmPassword"
-                            value={confirmPasswordValue}
-                            onChange={handleChange}
-                            placeholder={isEditing ? "" : "Confirm password"}
-                            required={!isEditing}
-                        />
-                    </label>
+                    <TextField
+                        label="Username"
+                        name="username"
+                        value={formState.username}
+                        onChange={handleChange}
+                        variant="outlined"
+                        fullWidth
+                        required
+                        margin="normal"
+                        placeholder={isEditing ? "" : "Enter username"}
+                    />
+                    <TextField
+                        label="Password"
+                        name="password"
+                        type="password"
+                        value={formState.password}
+                        onChange={handleChange}
+                        variant="outlined"
+                        fullWidth
+                        required={!isEditing}
+                        margin="normal"
+                        placeholder={isEditing ? "" : "Enter password"}
+                    />
+                    <TextField
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        type="password"
+                        value={confirmPasswordValue}
+                        onChange={handleChange}
+                        variant="outlined"
+                        fullWidth
+                        required={!isEditing}
+                        margin="normal"
+                        placeholder={isEditing ? "" : "Confirm password"}
+                    />
                     {error &&
-                        <label className={styles.label}>
-                            <span className="placeholder"></span>
-                            <p className={styles.errorMessage}>{error}</p>
-                        </label>}
-                    <label className={styles.label}>
-                        <span className={styles.span}>Role:</span>
-                        <select
-                            className={styles.select}
+                        <FormHelperText error>{error}</FormHelperText>}
+                    <FormControl fullWidth margin="normal" required={!isEditing}>
+                        <InputLabel>Role</InputLabel>
+                        <Select
                             name="role"
                             value={formState.role}
                             onChange={handleChange}
+                            label="Role"
                         >
-                            <option value="" disabled>Select a role</option>
+                            <MenuItem value="" disabled>Select a role</MenuItem>
                             {roles.map(role => (
-                                <option key={role} value={role}>
+                                <MenuItem key={role} value={role}>
                                     {role}
-                                </option>
+                                </MenuItem>
                             ))}
-                        </select>
-                    </label>
+                        </Select>
+                    </FormControl>
                     <div className="form-buttons">
-                        <button type="submit" className="positive button">{isEditing ? "Save" : "Create User"}</button>
-                        <button type="button" className="negative button" onClick={onCancel}>Cancel</button>
+                        <Button type="submit" variant="contained" color="primary" className="positive button">
+                            {isEditing ? "Save" : "Create User"}
+                        </Button>
+                        <Button type="button" variant="outlined" color="secondary" className="negative button" onClick={onCancel}>
+                            Cancel
+                        </Button>
                     </div>
                 </form>
             </div>
         </div>
     );
-
-}
+};
 
 export default UserForm;

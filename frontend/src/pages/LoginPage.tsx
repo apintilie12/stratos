@@ -1,12 +1,13 @@
 import {useState} from "react";
-import styles from "../styles/LoginPage.module.css";
 import {useNavigate} from "react-router-dom";
+import {TextField, Button, Typography, Container, Paper, Alert, useTheme} from "@mui/material";
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -47,38 +48,39 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles["login-container"]}>
-                <h1>Login</h1>
-                <form onSubmit={handleSubmit}>
-                    <div className={styles["form-group"]}>
-                        <label htmlFor="username">Username:</label>
-                        <input
-                            type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter your username"
-                            required
-                        />
-                    </div>
-                    <div className={styles["form-group"]}>
-                        <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            required
-                        />
-                    </div>
-                    {error && <div className="form-group error-message">{error}</div>}
-                    <button className={styles.button} type="submit">Login</button>
-                </form>
-            </div>
-        </div>
-    );
+        <Container maxWidth="xs" sx={{ mt: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, textAlign: "center", backgroundColor: theme.palette.background.paper, borderRadius: 4 }}>
+            <Typography variant="h4" gutterBottom>
+                Login
+            </Typography>
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    label="Username"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
+                <TextField
+                    label="Password"
+                    variant="outlined"
+                    type="password"
+                    fullWidth
+                    margin="normal"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3 }}>
+                    Login
+                </Button>
+            </form>
+        </Paper>
+    </Container>
+);
 };
 
 export default LoginPage;

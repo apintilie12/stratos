@@ -1,4 +1,5 @@
 import React from "react";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 
 interface ConfirmationModalProps {
     message: string;
@@ -6,17 +7,25 @@ interface ConfirmationModalProps {
     onCancel: () => void;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({message, onConfirm, onCancel}) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ message, onConfirm, onCancel }) => {
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
+        <Dialog
+            open={true}
+            onClose={onCancel}
+        >
+            <DialogTitle>Confirm Action</DialogTitle>
+            <DialogContent>
                 <h3>{message}</h3>
-                <div className="form-buttons">
-                    <button className="positive button" onClick={onConfirm}>Yes</button>
-                    <button className="negative button" onClick={onCancel}>Cancel</button>
-                </div>
-            </div>
-        </div>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onConfirm} color="primary" variant="contained">
+                    Yes
+                </Button>
+                <Button onClick={onCancel} color="secondary" variant="outlined">
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

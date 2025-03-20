@@ -1,10 +1,12 @@
 import * as React from "react";
-import {useCallback, useEffect, useState} from "react";
-import {User} from "../types/user.types.ts";
+import { useCallback, useEffect, useState } from "react";
+import { User } from "../types/user.types.ts";
 import UserEntry from "./UserEntry.tsx";
-import styles from "../styles/UserList.module.css"
 import UserForm from "./UserForm.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
+import {
+    Paper, Typography, Button, CircularProgress, Alert, Box, List, ListItem
+} from "@mui/material";
 
 const UserList: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -20,7 +22,6 @@ const UserList: React.FC = () => {
         const fetchUsers = async () => {
             try {
                 const apiURL = import.meta.env.VITE_APP_API_URL;
-                console.log(apiURL);
                 const response = await fetch(`${apiURL}/users`);
                 const body: User[] = await response.json();
                 setUsers(body);
@@ -147,34 +148,35 @@ const UserList: React.FC = () => {
         setUserToDelete(user);
     };
 
-
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
     }
 
     if (error) {
-        return <div>Error fetching users: {error}</div>;
+        return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
     }
 
-
     return (
-        <div className={styles.userList}>
-            <div className={styles.userListHeader}>
-                <h2>Users</h2>
-                <button className="positive button" onClick={addUser}>
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mt: 4, width: "100%" }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h5">Users</Typography>
+                <Button variant="contained" color="primary" onClick={addUser}>
                     Add User
-                </button>
-            </div>
-            <div className={styles.userListBody}>
+                </Button>
+            </Box>
+
+            <List sx = {{maxHeight: "600px", overflowY: "auto"}}>
                 {users.map((user) => (
-                    <UserEntry
-                        key={user.id}
-                        user={user}
-                        onEdit={() => edit(user)}
-                        onDelete={() => deleteUser(user)}
-                    />
+                    <ListItem key={user.id} sx={{ borderBottom: "1px solid #ddd" }}>
+                        <UserEntry
+                            user={user}
+                            onEdit={() => edit(user)}
+                            onDelete={() => deleteUser(user)}
+                        />
+                    </ListItem>
                 ))}
-            </div>
+            </List>
+
             {(editingUser || isAddingUser) && !isConfirmingDelete && (
                 <UserForm
                     initialUser={editingUser || undefined}
@@ -191,9 +193,8 @@ const UserList: React.FC = () => {
                     onCancel={handleCancel}
                 />
             )}
-        </div>
+        </Paper>
     );
-
-}
+};
 
 export default UserList;
