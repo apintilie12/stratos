@@ -4,13 +4,8 @@ import {
     TextField,
     Button,
     MenuItem,
-    Select,
-    InputLabel,
-    FormControl,
-    FormHelperText,
-    SelectChangeEvent
+    SelectChangeEvent, Dialog, DialogTitle, DialogContent, Box, Alert
 } from '@mui/material';
-import styles from "../styles/UserForm.module.css";
 
 interface UserFormProps {
     initialUser?: User;
@@ -53,7 +48,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
         setError(null);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (formState.password !== confirmPasswordValue) {
             setError("Passwords do not match!");
@@ -70,10 +65,10 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
     };
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content user-form">
-                <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
-                <form className={styles.userForm} onSubmit={handleSubmit}>
+        <Dialog open={true} onClose={onCancel} fullWidth maxWidth="sm">
+            <DialogTitle>{isEditing ? "Edit User" : "Add New User"}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit}>
                     <TextField
                         label="Username"
                         name="username"
@@ -109,35 +104,29 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
                         margin="normal"
                         placeholder={isEditing ? "" : "Confirm password"}
                     />
-                    {error &&
-                        <FormHelperText error>{error}</FormHelperText>}
-                    <FormControl fullWidth margin="normal" required={!isEditing}>
-                        <InputLabel>Role</InputLabel>
-                        <Select
-                            name="role"
-                            value={formState.role}
-                            onChange={handleChange}
-                            label="Role"
-                        >
-                            <MenuItem value="" disabled>Select a role</MenuItem>
-                            {roles.map(role => (
-                                <MenuItem key={role} value={role}>
-                                    {role}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <div className="form-buttons">
-                        <Button type="submit" variant="contained" color="primary" className="positive button">
-                            {isEditing ? "Save" : "Create User"}
-                        </Button>
-                        <Button type="button" variant="outlined" color="secondary" className="negative button" onClick={onCancel}>
-                            Cancel
-                        </Button>
-                    </div>
+                    <TextField
+                        fullWidth
+                        select
+                        label="Role"
+                        name="role"
+                        value={formState.role}
+                        onChange={handleChange}
+                        margin="normal"
+                        required
+                    >
+                        {roles.map((r) => (
+                            <MenuItem key={r} value={r}>{r}</MenuItem>
+                        ))}
+                    </TextField>
+                    {error && <Alert severity="error">{error}</Alert>}
+                    <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 2}}>
+                        <Button variant="outlined" onClick={onCancel}>Cancel</Button>
+                        <Button variant="contained" color="primary"
+                                type="submit">{isEditing ? "Update" : "Add"}</Button>
+                    </Box>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 };
 

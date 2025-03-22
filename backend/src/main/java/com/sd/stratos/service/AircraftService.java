@@ -3,6 +3,8 @@ package com.sd.stratos.service;
 import com.sd.stratos.dto.AircraftCreateDTO;
 import com.sd.stratos.dto.AircraftUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
+import com.sd.stratos.entity.AircraftStatus;
+import com.sd.stratos.entity.AircraftType;
 import com.sd.stratos.exception.AircraftRegistrationNumberAlreadyExistsException;
 import com.sd.stratos.repository.AircraftRepository;
 import lombok.AllArgsConstructor;
@@ -51,5 +53,13 @@ public class AircraftService {
 
     public void deleteAircraft(UUID id) {
         aircraftRepository.deleteById(id);
+    }
+
+    public List<AircraftType> getAllAircraftTypes() {
+        return List.of(AircraftType.values());
+    }
+
+    public List<AircraftStatus> getAllAircraftStatuses() {
+        return List.of(AircraftStatus.values());
     }
 }

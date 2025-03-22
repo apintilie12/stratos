@@ -3,6 +3,8 @@ package com.sd.stratos.controller;
 import com.sd.stratos.dto.AircraftCreateDTO;
 import com.sd.stratos.dto.AircraftUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
+import com.sd.stratos.entity.AircraftStatus;
+import com.sd.stratos.entity.AircraftType;
 import com.sd.stratos.service.AircraftService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,4 +44,10 @@ public class AircraftController {
     public void deleteAircraft(@PathVariable UUID id) {
         aircraftService.deleteAircraft(id);
     }
+
+    @GetMapping("/types")
+    public List<AircraftType> getAllAircraftTypes() {return aircraftService.getAllAircraftTypes();}
+
+    @GetMapping("/statuses")
+    public List<AircraftStatus> getAllAircraftStatuses() {return aircraftService.getAllAircraftStatuses();}
 }
