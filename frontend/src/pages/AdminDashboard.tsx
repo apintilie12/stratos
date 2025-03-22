@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useState } from "react";
+import AircraftList from "../components/AircraftList.tsx";
 
 const AdminDashboard: React.FC = () => {
     const [selectedSection, setSelectedSection] = useState<string>("users");
@@ -105,7 +106,7 @@ const AdminDashboard: React.FC = () => {
 
                     <Box sx={{ flexGrow: 1, width: "100%" }}>
                         {selectedSection === "users" && <UserList />}
-                        {selectedSection === "aircraft" && <Typography>AircraftList</Typography>}
+                        {selectedSection === "aircraft" && <AircraftList />}
                         {selectedSection === "flights" && <Typography>FlightList</Typography>}
                     </Box>
                 </Container>
