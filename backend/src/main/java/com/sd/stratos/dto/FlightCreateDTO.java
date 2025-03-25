@@ -26,5 +26,5 @@ public record FlightCreateDTO(
         ZonedDateTime arrivalTime,
 
         @NotNull
-        Aircraft aircraft
+        String aircraft
 ){}

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import UserList from "../components/UserList";
 import {
     Container,
@@ -11,8 +11,9 @@ import {
     ListItemButton,
 } from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { useState } from "react";
+import {useState} from "react";
 import AircraftList from "../components/AircraftList.tsx";
+import FlightList from "../components/FlightList.tsx";
 
 const AdminDashboard: React.FC = () => {
     const [selectedSection, setSelectedSection] = useState<string>("users");
@@ -28,7 +29,7 @@ const AdminDashboard: React.FC = () => {
     };
 
     return (
-        <Box sx={{ display: "flex", width: "100%", height: "90vh", alignItems: "flex-start" }}>
+        <Box sx={{display: "flex", width: "100%", height: "90vh", alignItems: "flex-start"}}>
             <Drawer
                 sx={{
                     width: 200,
@@ -43,7 +44,7 @@ const AdminDashboard: React.FC = () => {
                 anchor="left"
                 open={true}
             >
-                <List sx={{ flexGrow: 1 }}>
+                <List sx={{flexGrow: 1}}>
                     <ListItemButton
                         onClick={() => handleSectionSelect("users")}
                         sx={{
@@ -53,7 +54,7 @@ const AdminDashboard: React.FC = () => {
                             },
                         }}
                     >
-                        <ListItemText primary="Users" />
+                        <ListItemText primary="Users"/>
                     </ListItemButton>
                     <ListItemButton
                         onClick={() => handleSectionSelect("aircraft")}
@@ -64,7 +65,7 @@ const AdminDashboard: React.FC = () => {
                             },
                         }}
                     >
-                        <ListItemText primary="Aircraft" />
+                        <ListItemText primary="Aircraft"/>
                     </ListItemButton>
                     <ListItemButton
                         onClick={() => handleSectionSelect("flights")}
@@ -75,14 +76,14 @@ const AdminDashboard: React.FC = () => {
                             },
                         }}
                     >
-                        <ListItemText primary="Flights" />
+                        <ListItemText primary="Flights"/>
                     </ListItemButton>
                 </List>
 
-                <Box sx={{ marginTop: "auto", padding: 2 }}>
+                <Box sx={{marginTop: "auto", padding: 2}}>
                     <IconButton color="secondary" onClick={handleLogout}>
-                        <ExitToAppIcon />
-                        <ListItemText primary="Logout" sx={{ marginLeft: 1 }} />
+                        <ExitToAppIcon/>
+                        <ListItemText primary="Logout" sx={{marginLeft: 1}}/>
                     </IconButton>
                 </Box>
             </Drawer>
@@ -97,17 +98,17 @@ const AdminDashboard: React.FC = () => {
                     flexDirection: "column",
                 }}
             >
-                <Container maxWidth={false} sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                    <Box sx={{ width: "100%" }}>
+                <Container maxWidth={false} sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
+                    <Box sx={{width: "100%"}}>
                         <Typography variant="h4" align="center" gutterBottom>
                             Admin Dashboard
                         </Typography>
                     </Box>
 
-                    <Box sx={{ flexGrow: 1, width: "100%" }}>
-                        {selectedSection === "users" && <UserList />}
-                        {selectedSection === "aircraft" && <AircraftList />}
-                        {selectedSection === "flights" && <Typography>FlightList</Typography>}
+                    <Box sx={{flexGrow: 1, width: "100%"}}>
+                        {selectedSection === "users" && <UserList/>}
+                        {selectedSection === "aircraft" && <AircraftList/>}
+                        {selectedSection === "flights" && <FlightList/>}
                     </Box>
                 </Container>
             </Box>

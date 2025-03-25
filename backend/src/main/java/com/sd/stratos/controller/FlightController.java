@@ -14,6 +14,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/flights")
 @RequiredArgsConstructor
+@CrossOrigin
 public class FlightController {
     private final FlightService flightService;
 

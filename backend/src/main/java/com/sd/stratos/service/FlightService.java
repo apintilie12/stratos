@@ -2,6 +2,8 @@ package com.sd.stratos.service;
 
 import com.sd.stratos.dto.FlightCreateDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
+import com.sd.stratos.entity.Aircraft;
+import com.sd.stratos.entity.AircraftType;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
 import com.sd.stratos.exception.InvalidFlightEndpointsException;
@@ -41,7 +43,11 @@ public class FlightService {
         flightToAdd.setDepartureTime(flightCreateDTO.departureTime());
         flightToAdd.setDepartureAirport(flightCreateDTO.departureAirport());
         flightToAdd.setArrivalAirport(flightCreateDTO.arrivalAirport());
-        flightToAdd.setAircraft(flightCreateDTO.aircraft());
+        Aircraft potentialAircraft = aircraftRepository.findAircraftByRegistrationNumber(flightCreateDTO.aircraft());
+        if(potentialAircraft == null) {
+            throw new IllegalArgumentException("Aircraft not found");
+        }
+        flightToAdd.setAircraft(potentialAircraft);
         validateFlight(flightToAdd);
         return flightRepository.save(flightToAdd);
     }

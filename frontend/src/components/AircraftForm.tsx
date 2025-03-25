@@ -140,8 +140,6 @@ const AircraftForm: React.FC<AircraftFormProps> = ({initialAircraft, onSave, onC
                 </form>
             </DialogContent>
         </Dialog>
-
-
     );
 };
 
