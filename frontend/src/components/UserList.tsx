@@ -7,6 +7,7 @@ import ConfirmationModal from "./ConfirmationModal.tsx";
 import {
     Paper, Typography, Button, CircularProgress, Alert, Box, List, ListItem
 } from "@mui/material";
+import {UserService} from "../services/UserService.ts";
 
 const UserList: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -19,45 +20,27 @@ const UserList: React.FC = () => {
     const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const apiURL = import.meta.env.VITE_APP_API_URL;
-                const response = await fetch(`${apiURL}/users`);
-                const body: User[] = await response.json();
-                setUsers(body);
+        UserService.getAllUsers()
+            .then(setUsers)
+            .catch((error) => {
+                setError(error.message);
                 setIsLoading(false);
-            } catch (error) {
-                let message = 'Unknown error';
-                if (error instanceof Error) message = error.message;
-                setError(message);
-                setIsLoading(false);
-            }
-        };
-
-        fetchUsers();
+            })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const handleDelete = useCallback(async () => {
+        if (userToDelete == null) return;
         try {
-            if (!userToDelete) return;
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/users/${userToDelete.id}`, {
-                method: "DELETE",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to delete user");
-            }
-
-            setUsers((prevUsers) =>
-                prevUsers.filter((user) => user.id !== userToDelete.id)
-            );
+            await UserService.deleteUser(userToDelete.id);
+            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
             setIsConfirmingDelete(false);
             setUserToDelete(null);
         } catch (error) {
-            console.log("Error deleting user: ", error);
+            console.error("Error deleting user:", error);
         }
     }, [userToDelete]);
+
 
     const edit = useCallback((user: User) => {
         setEditingUser(user);
@@ -74,59 +57,26 @@ const UserList: React.FC = () => {
 
     const handleEdit = async (updatedUser: User) => {
         try {
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/users/${updatedUser.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedUser),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update user");
-            }
-
-            const updatedUserData: User = await response.json();
-
-            setUsers((prevUsers) =>
-                prevUsers.map((user) =>
-                    user.id === updatedUser.id ? updatedUserData : user
-                )
-            );
+            const updatedUserData = await UserService.updateUser(updatedUser);
+            setUsers((prevUsers) => prevUsers.map((user) => (user.id === updatedUser.id ? updatedUserData : user)));
             setEditingUser(null);
         } catch (error) {
-            console.error("Error updating user: ", error);
+            console.error("Error updating user:", error);
         }
     };
 
     const handleAdd = async (newUser: User) => {
         try {
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/users`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newUser),
-            });
-
-            const responseData = await response.json();
-            console.log("Tried to add user: " + newUser);
-
-            if (!response.ok) {
-                const errorMessage = responseData.message || "Failed to add user";
-                setFormError(errorMessage);
-                return;
-            }
-
-            const addedUser: User = responseData;
+            const addedUser = await UserService.addUser(newUser);
             setUsers((prevUsers) => [...prevUsers, addedUser]);
             setIsAddingUser(false);
             setFormError(null);
         } catch (error) {
-            console.error("Error adding user: ", error);
-        }
+            if (error instanceof Error) {
+                setFormError(error.message);
+            } else {
+                setFormError("An unknown error occurred.");
+            }        }
     };
 
     const handleCancel = () => {

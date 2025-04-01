@@ -6,6 +6,7 @@ import {
     MenuItem,
     SelectChangeEvent, Dialog, DialogTitle, DialogContent, Box, Alert
 } from '@mui/material';
+import {UserService} from "../services/UserService.ts";
 
 interface UserFormProps {
     initialUser?: User;
@@ -23,19 +24,10 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
     const [error, setError] = useState<string | null>(apiError);
 
     useEffect(() => {
-        const fetchRoles = async () => {
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/users/roles`);
-            const data = await response.json();
-            setRoles(data);
-        };
-
         if (apiError === null) {
-            fetchRoles();
-            console.log("first render");
+            UserService.getUserRoles().then(setRoles).catch((error) => console.log(error));
         }
         setError(apiError);
-        console.log("Effect re-rendering:" + apiError);
     }, [apiError]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
