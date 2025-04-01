@@ -1,0 +1,22 @@
+[
+  {
+    "flightNumber": "RO123",
+    "departureAirport": "CLJ",
+    "arrivalAirport": "ORY",
+    "departureTime": "2025-04-13T07:20:00Z",
+    "arrivalTime": "2025-04-13T13:30:00Z",
+    "aircraft": {
+      "registrationNumber": "EI-HDV"
+    }
+  },
+  {
+    "flightNumber": "RO564",
+    "departureAirport": "CLJ",
+    "arrivalAirport": "OTP",
+    "departureTime": "2025-03-27T04:00:00Z",
+    "arrivalTime": "2025-03-27T05:00:00Z",
+    "aircraft": {
+      "registrationNumber": "HA-LYF"
+    }
+  }
+]

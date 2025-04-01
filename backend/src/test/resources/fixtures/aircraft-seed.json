@@ -1,0 +1,17 @@
+[
+  {
+    "registrationNumber": "EI-HDV",
+    "type": "B737",
+    "status": "OPERATIONAL"
+  },
+  {
+    "registrationNumber": "HA-LYF",
+    "type": "A320",
+    "status": "IN_MAINTENANCE"
+  },
+  {
+    "registrationNumber": "HA-LFY",
+    "type": "A320",
+    "status": "RETIRED"
+  }
+]
