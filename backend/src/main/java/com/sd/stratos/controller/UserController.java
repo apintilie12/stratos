@@ -22,8 +22,13 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
-        return userService.getAllUsers();
+    public List<User> findAll(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) UserRole role,
+            @RequestParam(defaultValue="username") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder
+    ) {
+        return userService.getAllUsers(username, role, sortBy, sortOrder);
     }
 
     @GetMapping("/roles")

@@ -6,15 +6,11 @@ import com.sd.stratos.entity.User;
 import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.exception.UsernameAlreadyExistsException;
 import com.sd.stratos.repository.UserRepository;
-import jakarta.xml.bind.ValidationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +34,7 @@ public class UserServiceTests {
 
         ///When:
         when(userRepository.findAll()).thenReturn(users);
-        List<User> result = userService.getAllUsers();
+        List<User> result = userService.getAllUsers(, , , );
 
         ///Then:
         assertEquals(2, result.size());

@@ -6,12 +6,12 @@ import com.sd.stratos.entity.User;
 import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.exception.UsernameAlreadyExistsException;
 import com.sd.stratos.repository.UserRepository;
+import com.sd.stratos.specification.UserSpecification;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,8 +22,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<User> getAllUsers(String username, UserRole role, String sortBy, String sortOrder) {
+        Specification<User> spec = Specification.where(UserSpecification.hasUsername(username))
+                .and(UserSpecification.hasRole(role));
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+
+        return userRepository.findAll(spec, sort);
     }
     public User addUser(UserCreateDTO userCreateDTO) {
         User user = new User();
