@@ -15,8 +15,11 @@ export class UserService {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(user),
         });
-        if (!response.ok) throw new Error("Failed to add user");
-        return response.json();
+        if (!response.ok){
+            const responseData = await response.json();
+            throw new Error(responseData.message || "Failed to add user");
+        }
+        return await response.json();
     }
 
     static async updateUser(user: User): Promise<User> {

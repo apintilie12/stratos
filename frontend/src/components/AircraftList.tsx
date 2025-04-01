@@ -5,6 +5,7 @@ import {Alert, Box, Button, CircularProgress, List, ListItem, Paper, Typography}
 import AircraftEntry from "./AircraftEntry.tsx";
 import AircraftForm from "./AircraftForm.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
+import {AircraftService} from "../services/AircraftService.ts";
 
 const AircraftList: React.FC = () => {
     const [aircraft, setAircraft] = useState<Aircraft[]>([]);
@@ -17,36 +18,20 @@ const AircraftList: React.FC = () => {
     const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchAircraft = async () => {
-            try {
-                const apiURL = import.meta.env.VITE_APP_API_URL;
-                const response = await fetch(`${apiURL}/aircraft`);
-                const body: Aircraft[] = await response.json();
-                setAircraft(body);
+        AircraftService.getAircraft()
+            .then(setAircraft)
+            .catch((error) => {
+                setError(error);
                 setIsLoading(false);
-            } catch (error) {
-                let message = 'Unknown error';
-                if (error instanceof Error) message = error.message;
-                setError(message);
-                setIsLoading(false)
-            }
-        }
-
-        fetchAircraft();
+            })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const handleDelete = useCallback(async () => {
+        if(aircraftToDelete == null)
+            return;
         try {
-            if(!aircraftToDelete) return;
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/aircraft/${aircraftToDelete.id}`, {
-                method: "DELETE",
-            });
-
-            if(!response.ok) {
-                throw new Error("Failed to delete aircraft");
-            }
-
+            await AircraftService.deleteAircraft(aircraftToDelete.id);
             setAircraft((prevAircraft) =>
                 prevAircraft.filter((aircraft) => aircraft.id !== aircraftToDelete.id)
             );
@@ -58,12 +43,12 @@ const AircraftList: React.FC = () => {
     }, [aircraftToDelete]);
 
     const editAircraft = useCallback((aircraft: Aircraft) => {
-       setEditingAircraft(aircraft);
-       setIsAddingAircraft(false);
+        setEditingAircraft(aircraft);
+        setIsAddingAircraft(false);
     }, []);
 
     const handleSave = async (aircraft: Aircraft) => {
-        if(aircraft.id != undefined) {
+        if (aircraft.id != undefined) {
             await handleEdit(aircraft);
         } else {
             await handleAdd(aircraft);
@@ -71,59 +56,32 @@ const AircraftList: React.FC = () => {
     };
 
     const handleEdit = async (updatedAircraft: Aircraft) => {
-      try {
-          const apiURL = import.meta.env.VITE_APP_API_URL;
-          const response = await fetch(`${apiURL}/aircraft/${updatedAircraft.id}`, {
-              method: "PUT",
-              headers: {
-                  "Content-Type": "application/json",
-              },
-              body: JSON.stringify(updatedAircraft),
-          });
-
-          if(!response.ok) {
-              throw new Error("Failed to udpate aircraft");
-          }
-
-          const updatedAircraftData: Aircraft = await response.json();
-          setAircraft((prevAircraft) =>
-            prevAircraft.map((aircraft) =>
-                aircraft.id === updatedAircraft.id ? updatedAircraftData : aircraft
-            )
-          );
-          setEditingAircraft(null);
-      } catch (err) {
-          console.log(err);
-      }
+        try {
+            const updatedAircraftData: Aircraft = await AircraftService.updateAircraft(updatedAircraft);
+            setAircraft((prevAircraft) =>
+                prevAircraft.map((aircraft) =>
+                    aircraft.id === updatedAircraft.id ? updatedAircraftData : aircraft
+                )
+            );
+            setEditingAircraft(null);
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     const handleAdd = async (newAircraft: Aircraft) => {
         try {
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/aircraft`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newAircraft),
-            });
-
-            const responseData = await response.json();
-            console.log("Tried to add aircraft " + newAircraft);
-
-            if (!response.ok) {
-                const errorMessage = responseData.message || "Failed to add aircraft";
-                console.log(errorMessage);
-                setFormError(errorMessage);
-                return;
-            }
-
-            const addedAircraft: Aircraft = responseData;
+            const addedAircraft = await AircraftService.addAircraft(newAircraft);
             setAircraft((prevAircraft) => [...prevAircraft, addedAircraft]);
             setIsAddingAircraft(false);
             setFormError(null);
         } catch (error) {
-            console.error("Error adding aircraft: ", error);
+            if(error instanceof Error) {
+                setFormError(error.message);
+            } else {
+                setFormError("Unknown error");
+                console.log("Unknown error: ", error);
+            }
         }
     };
 
@@ -149,11 +107,11 @@ const AircraftList: React.FC = () => {
 
 
     if (isLoading) {
-        return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
+        return <CircularProgress sx={{display: "block", mx: "auto", mt: 4}}/>;
     }
 
     if (error) {
-        return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
+        return <Alert severity="error" sx={{mt: 2}}>{error}</Alert>;
     }
 
     return (

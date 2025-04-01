@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
-import { User } from "../types/user.types.ts";
+import {useCallback, useEffect, useState} from "react";
+import {User} from "../types/user.types.ts";
 import UserEntry from "./UserEntry.tsx";
 import UserForm from "./UserForm.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
@@ -76,7 +76,10 @@ const UserList: React.FC = () => {
                 setFormError(error.message);
             } else {
                 setFormError("An unknown error occurred.");
-            }        }
+                console.log("Unknown error: ", error);
+
+            }
+        }
     };
 
     const handleCancel = () => {
@@ -99,15 +102,15 @@ const UserList: React.FC = () => {
     };
 
     if (isLoading) {
-        return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
+        return <CircularProgress sx={{display: "block", mx: "auto", mt: 4}}/>;
     }
 
     if (error) {
-        return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
+        return <Alert severity="error" sx={{mt: 2}}>{error}</Alert>;
     }
 
     return (
-        <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mt: 4, width: "100%" }}>
+        <Paper elevation={3} sx={{p: 3, borderRadius: 3, mt: 4, width: "100%"}}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h5">Users</Typography>
                 <Button variant="contained" color="primary" onClick={addUser}>
@@ -115,9 +118,9 @@ const UserList: React.FC = () => {
                 </Button>
             </Box>
 
-            <List sx = {{maxHeight: "600px", overflowY: "auto"}}>
+            <List sx={{maxHeight: "600px", overflowY: "auto"}}>
                 {users.map((user) => (
-                    <ListItem key={user.id} sx={{ borderBottom: "1px solid #ddd" }}>
+                    <ListItem key={user.id} sx={{borderBottom: "1px solid #ddd"}}>
                         <UserEntry
                             user={user}
                             onEdit={() => edit(user)}
