@@ -1,4 +1,4 @@
-import {Alert, Box, Button, Dialog, DialogContent, DialogTitle, TextField} from "@mui/material";
+import {Alert, Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, TextField} from "@mui/material";
 import {Flight} from "../types/flight.types.ts";
 import {useEffect, useState} from "react";
 import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
@@ -25,10 +25,27 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
     }
     const [formState, setFormState] = useState<Flight>(initialFlight || defaultFlight);
     const [error, setError] = useState<string | null>(apiError);
+    const [airports, setAirports] = useState<string[]>([]);
 
     useEffect(() => {
         setError(apiError);
     }, [apiError]);
+
+    useEffect(() => {
+        const fetchAirports = async () => {
+            try {
+                const apiURL = import.meta.env.VITE_APP_API_URL;
+                const response = await fetch(`${apiURL}/airports`);
+                if(!response.ok) {
+                    throw new Error("Error fetching Airports");
+                }
+                setAirports(await response.json());
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        fetchAirports();
+    }, [])
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -67,28 +84,47 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
                         placeholder="Enter flight number"
                     />
 
-                    <TextField
-                        label="Departure Airport"
-                        name="departureAirport"
+                    <Autocomplete
+                        options={airports}
+                        getOptionLabel={(option: string) => option}
                         value={formState.departureAirport}
-                        onChange={handleChange}
-                        variant="outlined"
-                        fullWidth
-                        required
-                        margin="normal"
-                        placeholder="Enter departure airport"
+                        onChange={(_event, newValue) => setFormState((prev) => ({
+                            ...prev,
+                            departureAirport: newValue ? newValue : ""
+                        }))}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Departure Airport"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                margin="normal"
+                            />
+                        )}
+                        noOptionsText="No airports found"
                     />
 
-                    <TextField
-                        label="Arrival Airport"
-                        name="arrivalAirport"
+                    {/* Arrival Airport Autocomplete */}
+                    <Autocomplete
+                        options={airports}
+                        getOptionLabel={(option: string) => option}
                         value={formState.arrivalAirport}
-                        onChange={handleChange}
-                        variant="outlined"
-                        fullWidth
-                        required
-                        margin="normal"
-                        placeholder="Enter arrival airport"
+                        onChange={(_event, newValue) => setFormState((prev) => ({
+                            ...prev,
+                            arrivalAirport: newValue ? newValue : ""
+                        }))}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Arrival Airport"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                margin="normal"
+                            />
+                        )}
+                        noOptionsText="No airports found"
                     />
 
 

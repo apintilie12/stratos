@@ -17,8 +17,8 @@ public class AirportController {
     private final AirportRepository airportRepository;
 
     @GetMapping
-    public List<Airport> getAllAirports() {
-        return airportRepository.findAll();
+    public List<String> getAllIataCodes() {
+        return airportRepository.findAllIataCodes();
     }
 
     @PostMapping
