@@ -113,6 +113,14 @@ const UserList: React.FC = () => {
         setUserToDelete(user);
     };
 
+    const clearFilters = async () => {
+        setUsernameFilter("");
+        setRoleFilter(undefined);
+        setSortBy("username");
+        setSortOrder("asc");
+        fetchUsers();
+    }
+
     if (isLoading) {
         return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
     }
@@ -171,6 +179,7 @@ const UserList: React.FC = () => {
                     <MenuItem value="desc">Descending</MenuItem>
                 </TextField>
                 <Button variant="contained" onClick={fetchUsers}>Apply Filters</Button>
+                <Button variant="outlined" onClick={clearFilters}>Clear Filters</Button>
             </Box>
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
