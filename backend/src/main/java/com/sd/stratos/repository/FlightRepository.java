@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,5 +24,14 @@ public interface FlightRepository extends JpaRepository<Flight, UUID> {
              (:newDepartureTime <= f.departureTime AND f.arrivalTime <=  :newArrivalTime))
     """)
     boolean existsOverlappingFlight(Aircraft aircraft, ZonedDateTime newDepartureTime, ZonedDateTime newArrivalTime);
+
+    @Query("""
+        SELECT f FROM Flight f
+        WHERE f.aircraft = :aircraft
+        AND f.arrivalTime < :departureTime
+        ORDER BY f.arrivalTime DESC
+        LIMIT 1
+    """)
+    Optional<Flight> findLastFlightBefore(Aircraft aircraft, ZonedDateTime departureTime);
 
 }
