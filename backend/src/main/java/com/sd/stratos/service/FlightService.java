@@ -3,14 +3,13 @@ package com.sd.stratos.service;
 import com.sd.stratos.dto.FlightCreateDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
-import com.sd.stratos.entity.AircraftType;
+import com.sd.stratos.entity.AircraftStatus;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
 import com.sd.stratos.exception.InvalidFlightEndpointsException;
 import com.sd.stratos.exception.InvalidTimeIntervalException;
 import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.FlightRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -83,11 +82,22 @@ public class FlightService {
 
     private void validateFlight(Flight flight) {
         validateTimes(flight.getDepartureTime(), flight.getArrivalTime());
+        validateAssignedAircraft(flight);
         if(flight.getDepartureAirport().equals(flight.getArrivalAirport())) {
             throw new InvalidFlightEndpointsException("Arrival and departure airports must be different");
         }
         if(aircraftRepository.findById(flight.getAircraft().getId()).isEmpty()) {
             throw new IllegalStateException("Aircraft not in database");
+        }
+    }
+
+    private void validateAssignedAircraft(Flight flight) {
+        Aircraft assignedAircraft = flight.getAircraft();
+        if(!assignedAircraft.getStatus().equals(AircraftStatus.OPERATIONAL)) {
+            throw new IllegalStateException("Aircraft is not operational");
+        }
+        if(flightRepository.existsOverlappingFlight(assignedAircraft, flight.getDepartureTime(), flight.getArrivalTime())) {
+            throw new IllegalStateException("Flight overlaps assigned aircraft's existing flight");
         }
     }
 }

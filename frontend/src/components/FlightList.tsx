@@ -81,6 +81,7 @@ const FlightList: React.FC = () => {
         } catch (error) {
             if(error instanceof Error) {
                 setFormError(error.message);
+                console.log("Is instance of Error");
             } else {
                 setFormError("Unknown error occurred");
             }
