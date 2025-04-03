@@ -3,11 +3,20 @@ import {User} from "../types/user.types.ts";
 export class UserService {
     private static baseUrl = import.meta.env.VITE_APP_API_URL + "/users";
 
-    static async getAllUsers(): Promise<User[]> {
-        const response = await fetch(this.baseUrl);
+    static async getAllUsers(params: { username?: string; role?: string; sortBy?: string; sortOrder?: string }): Promise<User[]> {
+        const query = new URLSearchParams();
+
+        if (params.username) query.append("username", params.username);
+        if (params.role) query.append("role", params.role);
+        if (params.sortBy) query.append("sortBy", params.sortBy);
+        if (params.sortOrder) query.append("sortOrder", params.sortOrder);
+
+        const response = await fetch(`${this.baseUrl}?${query.toString()}`);
+
         if (!response.ok) throw new Error("Failed to fetch users");
         return response.json();
     }
+
 
     static async addUser(user: User): Promise<User> {
         const response = await fetch(this.baseUrl, {
