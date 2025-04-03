@@ -34,7 +34,7 @@ public class UserServiceTests {
 
         ///When:
         when(userRepository.findAll()).thenReturn(users);
-        List<User> result = userService.getAllUsers(, , , );
+        List<User> result = userService.getAllUsers("",null,"","") ;
 
         ///Then:
         assertEquals(2, result.size());
