@@ -1,11 +1,12 @@
-import {Flight} from "../types/flight.types.ts";
-import {useCallback, useEffect, useState} from "react";
-import {Alert, Box, Button, CircularProgress, List, ListItem, Paper, Typography} from "@mui/material";
+import { Flight } from "../types/flight.types.ts";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Box, Button, CircularProgress, List, ListItem, Paper, Typography } from "@mui/material";
 import * as React from "react";
 import FlightEntry from "./FlightEntry.tsx";
 import FlightForm from "./FlightForm.tsx";
 import dayjs from "dayjs";
 import ConfirmationModal from "./ConfirmationModal.tsx";
+import { FlightService } from "../services/FlightService";
 
 const FlightList: React.FC = () => {
     const [flights, setFlights] = useState<Flight[]>([]);
@@ -16,45 +17,31 @@ const FlightList: React.FC = () => {
     const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null);
     const [isConfirmingDelete, setIsConfirmingDelete] = useState<boolean>(false);
     const [formError, setFormError] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchFlights = async () => {
             try {
-                const apiURL = import.meta.env.VITE_APP_API_URL;
-                const response = await fetch(`${apiURL}/flights`);
-                const body: Flight[] = await response.json();
-
+                const body = await FlightService.getAllFlights();
                 const parsedFlights = body.map(flight => ({
                     ...flight,
                     departureTime: dayjs.tz(flight.departureTime),
                     arrivalTime: dayjs.tz(flight.arrivalTime)
                 }));
-
                 setFlights(parsedFlights);
-                setIsLoading(false);
             } catch (error) {
-                let message = "Unknown error";
-                if (error instanceof Error) message = error.message;
-                setError(message);
+                setError(error instanceof Error ? error.message : "Unknown error");
+            } finally {
                 setIsLoading(false);
             }
         };
-
         fetchFlights();
-    }, [])
+    }, []);
 
     const handleDelete = useCallback(async () => {
         try {
             if (!flightToDelete) return;
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/flights/${flightToDelete.id}`, {
-                method: "DELETE",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to delete flight");
-            }
-
-            setFlights((prevFligths) => prevFligths.filter((flight) => flight.id !== flightToDelete.id));
+            await FlightService.deleteFlight(flightToDelete.id);
+            setFlights(prevFlights => prevFlights.filter(flight => flight.id !== flightToDelete.id));
             setIsConfirmingDelete(false);
             setFlightToDelete(null);
         } catch (err) {
@@ -68,7 +55,7 @@ const FlightList: React.FC = () => {
     }, []);
 
     const handleSave = async (flight: Flight) => {
-        if (flight.id != undefined) {
+        if (flight.id !== undefined) {
             await handleEdit(flight);
         } else {
             await handleAdd(flight);
@@ -77,25 +64,8 @@ const FlightList: React.FC = () => {
 
     const handleEdit = async (updatedFlight: Flight) => {
         try {
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/flights/${updatedFlight.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedFlight),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to udpate aircraft");
-            }
-
-            const updatedAircraftData: Flight = await response.json();
-            setFlights((prevFlights) =>
-                prevFlights.map((flight) =>
-                    flight.id === updatedFlight.id ? updatedAircraftData : flight
-                )
-            );
+            const updatedFlightData = await FlightService.updateFlight(updatedFlight);
+            setFlights(prevFlights => prevFlights.map(flight => flight.id === updatedFlight.id ? updatedFlightData : flight));
             setEditingFlight(null);
         } catch (err) {
             console.log(err);
@@ -104,32 +74,17 @@ const FlightList: React.FC = () => {
 
     const handleAdd = async (newFlight: Flight) => {
         try {
-            console.log(JSON.stringify(newFlight));
-            const apiURL = import.meta.env.VITE_APP_API_URL;
-            const response = await fetch(`${apiURL}/flights`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newFlight),
-            });
-
-            const responseData = await response.json();
-            console.log("Tried to add aircraft " + newFlight);
-
-            if (!response.ok) {
-                const errorMessage = responseData.message || "Failed to add aircraft";
-                console.log(errorMessage);
-                setFormError(errorMessage);
-                return;
-            }
-
-            const addedFlight: Flight = responseData;
-            setFlights((prevFlights) => [...prevFlights, addedFlight]);
+            const addedFlight = await FlightService.addFlight(newFlight);
+            setFlights(prevFlights => [...prevFlights, addedFlight]);
             setIsAddingFlight(false);
             setFormError(null);
         } catch (error) {
-            console.error("Error adding aircraft: ", error);
+            if(error instanceof Error) {
+                setFormError(error.message);
+            } else {
+                setFormError("Unknown error occurred");
+            }
+            console.error("Error adding flight: ", error);
         }
     };
 
@@ -137,8 +92,8 @@ const FlightList: React.FC = () => {
         setEditingFlight(null);
         setIsAddingFlight(false);
         setIsConfirmingDelete(false);
-        setFormError(null)
-    }
+        setFormError(null);
+    };
 
     const addFlight = () => {
         setIsAddingFlight(true);
@@ -153,15 +108,15 @@ const FlightList: React.FC = () => {
     };
 
     if (isLoading) {
-        return <CircularProgress sx={{display: "block", mx: "auto", mt: 4}}/>;
+        return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
     }
 
     if (error) {
-        return <Alert severity="error" sx={{mt: 2}}>{error}</Alert>;
+        return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
     }
 
     return (
-        <Paper elevation={3} sx={{p: 3, borderRadius: 3, mt: 4, width: "100%"}}>
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mt: 4, width: "100%" }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h5">Flights</Typography>
                 <Button variant="contained" color="primary" onClick={addFlight}>
@@ -169,13 +124,13 @@ const FlightList: React.FC = () => {
                 </Button>
             </Box>
 
-            <List sx={{maxHeight: "600px", overflowY: "auto"}}>
+            <List sx={{ maxHeight: "600px", overflowY: "auto" }}>
                 {flights.map((flight) => (
-                    <ListItem key={flight.id} sx={{borderBottom: "1px solid #ddd"}}>
+                    <ListItem key={flight.id} sx={{ borderBottom: "1px solid #ddd" }}>
                         <FlightEntry
                             flight={flight}
                             onEdit={() => editFlight(flight)}
-                            onDelete={() => deleteFlight(flight)}/>
+                            onDelete={() => deleteFlight(flight)} />
                     </ListItem>
                 ))}
             </List>
