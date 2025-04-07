@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
             const user: User = await response.json();
             if (response.ok) {
                 localStorage.setItem("userRole", user.role);
-
+                console.log("User:" + user)
                 switch (user.role) {
                     case "ADMIN":
                         navigate("/admin/dashboard");

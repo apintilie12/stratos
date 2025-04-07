@@ -9,7 +9,7 @@ import { MaintenanceRecordService } from "../services/MaintenanceRecordService.t
 import {useParams} from "react-router-dom";
 
 const MaintenanceRecordList: React.FC = () => {
-    const { userID } = useParams<{ userID: string }>();
+    const { userId } = useParams<{ userId: string }>();
     const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,8 @@ const MaintenanceRecordList: React.FC = () => {
     useEffect(() => {
         const fetchMaintenanceRecords = async () => {
             try {
-                const records = await MaintenanceRecordService.getMaintenanceRecordsForUser(userID || "");
+                console.log(userId);
+                const records = await MaintenanceRecordService.getMaintenanceRecordsForUser(userId || "");
                 setMaintenanceRecords(records);
             } catch (error) {
                 setError(error instanceof Error ? error.message : "Unknown error");
