@@ -39,7 +39,7 @@ const MaintenanceRecordEntry: React.FC<MaintenanceRecordEntryProps> = ({record, 
         >
             <CardContent sx={{flex: 1, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap"}}>
                 <Typography variant="h6" sx={{width:"150px"}}>
-                    Aircraft: {record.aircraft}
+                    Aircraft: {record.aircraft.registrationNumber}
                 </Typography>
                 <Typography variant="h6" sx={{width: 120}}>
                     {record.type}

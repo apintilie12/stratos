@@ -16,6 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/maintenance-records")
 @RequiredArgsConstructor
+@CrossOrigin
 public class MaintenanceRecordController {
     private final MaintenanceRecordService maintenanceRecordService;
 

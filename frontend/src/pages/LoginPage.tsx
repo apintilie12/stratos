@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {TextField, Button, Typography, Container, Paper, Alert, useTheme} from "@mui/material";
+import {User} from "../types/user.types.ts"
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState<string>("");
@@ -21,16 +22,16 @@ const LoginPage: React.FC = () => {
                 body: JSON.stringify({username, password}),
             });
 
-            const data: string = await response.json();
+            const user: User = await response.json();
             if (response.ok) {
-                localStorage.setItem("userRole", data);
+                localStorage.setItem("userRole", user.role);
 
-                switch (data) {
+                switch (user.role) {
                     case "ADMIN":
                         navigate("/admin/dashboard");
                         break;
                     case "ENGINEER":
-                        navigate("/engineer/dashboard");
+                        navigate(`/engineer/dashboard/${user.id}`);
                         break;
                     case "PILOT":
                         setError("Login as PILOT");
@@ -39,7 +40,7 @@ const LoginPage: React.FC = () => {
                         setError("Unknown role, please contact support");
                 }
             } else {
-                setError(data);
+                setError("Unknown error");
             }
         } catch (error) {
             setError("Login failed, please try again");

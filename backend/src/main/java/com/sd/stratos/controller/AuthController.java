@@ -20,7 +20,7 @@ public class AuthController {
         User user = userRepository.findByUsername(loginRequest.getUsername());
 
         if(user != null && user.getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.ok(user.getRole());
+            return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
