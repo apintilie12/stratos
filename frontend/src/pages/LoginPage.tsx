@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
                         navigate("/admin/dashboard");
                         break;
                     case "ENGINEER":
-                        setError("Login as ENGINEER");
+                        navigate("/engineer/dashboard");
                         break;
                     case "PILOT":
                         setError("Login as PILOT");
