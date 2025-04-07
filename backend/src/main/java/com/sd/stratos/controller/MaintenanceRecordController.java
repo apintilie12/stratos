@@ -3,6 +3,8 @@ package com.sd.stratos.controller;
 import com.sd.stratos.dto.MaintenanceRecordCreateDTO;
 import com.sd.stratos.dto.MaintenanceRecordUpdateDTO;
 import com.sd.stratos.entity.MaintenanceRecord;
+import com.sd.stratos.entity.MaintenanceStatus;
+import com.sd.stratos.entity.MaintenanceType;
 import com.sd.stratos.service.MaintenanceRecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +20,15 @@ public class MaintenanceRecordController {
     private final MaintenanceRecordService maintenanceRecordService;
 
     @GetMapping
-    public List<MaintenanceRecord> getMaintenanceRecords() {
-        return maintenanceRecordService.getMaintenanceRecords();
+    public List<MaintenanceRecord> getMaintenanceRecords(
+            @RequestParam(required = false) MaintenanceStatus status,
+            @RequestParam(required = false) MaintenanceType type,
+            @RequestParam(required = false) UUID engineerId,
+            @RequestParam(required = false) UUID aircraftId,
+            @RequestParam(required = false, defaultValue = "startDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order
+    ) {
+        return maintenanceRecordService.getMaintenanceRecords(status, type, engineerId, aircraftId, sortBy, order);
     }
 
     @GetMapping("/{id}")
