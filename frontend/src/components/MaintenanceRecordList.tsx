@@ -6,12 +6,15 @@ import MaintenanceRecordEntry from "./MaintenanceRecordEntry.tsx";
 // import MaintenanceRecordForm from "./MaintenanceRecordForm.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
 import { MaintenanceRecordService } from "../services/MaintenanceRecordService.ts";
-import {useParams} from "react-router-dom";
 import MaintenanceRecordForm from "./MaintenanceRecordForm.tsx";
 import dayjs from "dayjs";
 
-const MaintenanceRecordList: React.FC = () => {
-    const { userId } = useParams<{ userId: string }>();
+// Accept engineerId as a prop
+interface MaintenanceRecordListProps {
+    engineerId: string;
+}
+
+const MaintenanceRecordList: React.FC<MaintenanceRecordListProps> = ({engineerId}) => {
     const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,8 +27,7 @@ const MaintenanceRecordList: React.FC = () => {
     useEffect(() => {
         const fetchMaintenanceRecords = async () => {
             try {
-                console.log(userId);
-                const body = await MaintenanceRecordService.getMaintenanceRecordsForUser(userId || "");
+                const body = await MaintenanceRecordService.getMaintenanceRecordsForUser(engineerId || "");
                 const parsedRecords = body.map((record) => ({
                     ...record,
                     startDate: dayjs.tz(record.startDate),
@@ -146,7 +148,7 @@ const MaintenanceRecordList: React.FC = () => {
                     onCancel={handleCancel}
                     isEditing={!!editingRecord}
                     apiError={formError}
-                    engineerId={userId || ""}
+                    engineerId={engineerId || ""}
                 />
             )}
 

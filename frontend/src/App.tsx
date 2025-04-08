@@ -4,7 +4,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import {CssBaseline, ThemeProvider} from "@mui/material";
 import theme from "./styles/theme.ts"
-import MaintenanceRecordList from "./components/MaintenanceRecordList.tsx";
+import EngineerDashboard from "./pages/EngineerDashboard.tsx";
 
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
                     <Route path='/' element={<Navigate to="/login"/>}/>
                     <Route path='/login' element={<LoginPage/>}/>
                     <Route path='/admin/dashboard' element={<AdminDashboard/>}/>
-                    <Route path='/engineer/dashboard/:userId' element={<MaintenanceRecordList/>}/>
+                    <Route path='/engineer/dashboard/:userId' element={<EngineerDashboard/>}/>
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>
