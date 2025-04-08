@@ -76,8 +76,16 @@ public class MaintenanceRecordService {
         Optional<MaintenanceRecord> existingMaintenanceRecord = maintenanceRecordRepository.findById(id);
         if (existingMaintenanceRecord.isPresent()) {
             MaintenanceRecord updatedMaintenanceRecord = existingMaintenanceRecord.get();
-            updatedMaintenanceRecord.setAircraft(maintenanceRecord.aircraft());
-            updatedMaintenanceRecord.setEngineer(maintenanceRecord.engineer());
+            Aircraft aircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecord.aircraft());
+            if(aircraft == null) {
+                throw new IllegalStateException("Aircraft not found");
+            }
+            updatedMaintenanceRecord.setAircraft(aircraft);
+            Optional<User> maybeEngineer = userRepository.findById(UUID.fromString(maintenanceRecord.engineer()));
+            if(maybeEngineer.isEmpty()) {
+                throw new IllegalStateException("User not found");
+            }
+            updatedMaintenanceRecord.setEngineer(maybeEngineer.get());
             updatedMaintenanceRecord.setType(maintenanceRecord.type());
             updatedMaintenanceRecord.setStatus(maintenanceRecord.status());
             updatedMaintenanceRecord.setStartDate(maintenanceRecord.startDate());

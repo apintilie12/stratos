@@ -40,6 +40,7 @@ export class MaintenanceRecordService {
                 ...record,
                 startDate: record.startDate.toISOString(),
                 endDate: record.endDate.toISOString(),
+                aircraft: record.aircraft.registrationNumber,
             }),
         });
         if (!response.ok) throw new Error("Failed to update maintenance record");

@@ -14,10 +14,10 @@ public record MaintenanceRecordUpdateDTO(
         UUID id,
 
         @NotNull
-        Aircraft aircraft,
+        String aircraft,
 
         @NotNull
-        User engineer,
+        String engineer,
 
         @NotNull
         ZonedDateTime startDate,

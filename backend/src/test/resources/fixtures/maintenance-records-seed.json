@@ -1,0 +1,18 @@
+[
+  {
+    "aircraft": {},
+    "engineer": {},
+    "startDate": "2025-04-01T08:00:00Z",
+    "endDate": "2025-04-01T12:00:00Z",
+    "type": "ROUTINE",
+    "status": "COMPLETED"
+  },
+  {
+    "aircraft": {},
+    "engineer": {},
+    "startDate": "2025-04-02T09:00:00Z",
+    "endDate": "2025-04-02T17:00:00Z",
+    "type": "REPAIR",
+    "status": "IN_PROGRESS"
+  }
+]
