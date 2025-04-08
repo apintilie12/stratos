@@ -2,10 +2,12 @@ package com.sd.stratos.service;
 
 import com.sd.stratos.dto.MaintenanceRecordCreateDTO;
 import com.sd.stratos.dto.MaintenanceRecordUpdateDTO;
+import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.entity.MaintenanceRecord;
 import com.sd.stratos.entity.MaintenanceStatus;
 import com.sd.stratos.entity.MaintenanceType;
 import com.sd.stratos.exception.InvalidTimeIntervalException;
+import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.MaintenanceRecordRepository;
 import com.sd.stratos.specification.MaintenanceRecordSpecification;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MaintenanceRecordService {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
+    private final AircraftRepository aircraftRepository;
 
     public List<MaintenanceRecord> getMaintenanceRecords(
             MaintenanceStatus status,
@@ -52,7 +55,11 @@ public class MaintenanceRecordService {
 
     public MaintenanceRecord addMaintenanceRecord(MaintenanceRecordCreateDTO maintenanceRecordCreateDTO) {
         MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
-        maintenanceRecord.setAircraft(maintenanceRecordCreateDTO.aircraft());
+        Aircraft maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecordCreateDTO.aircraft());
+        if(maybeAircraft == null) {
+            throw new IllegalStateException("Aircraft not found");
+        }
+        maintenanceRecord.setAircraft(maybeAircraft);
         maintenanceRecord.setEngineer(maintenanceRecordCreateDTO.engineer());
         maintenanceRecord.setStartDate(maintenanceRecordCreateDTO.startDate());
         maintenanceRecord.setEndDate(maintenanceRecordCreateDTO.endDate());
@@ -91,4 +98,11 @@ public class MaintenanceRecordService {
         }
     }
 
+    public List<MaintenanceType> getAllMaintenanceTypes() {
+        return List.of(MaintenanceType.values());
+    }
+
+    public List<MaintenanceStatus> getAllMaintenanceStatuses() {
+        return List.of(MaintenanceStatus.values());
+    }
 }

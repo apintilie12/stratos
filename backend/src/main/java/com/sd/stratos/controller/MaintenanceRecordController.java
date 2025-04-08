@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/maintenance-records")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class MaintenanceRecordController {
     private final MaintenanceRecordService maintenanceRecordService;
 
@@ -51,5 +51,11 @@ public class MaintenanceRecordController {
     public void deleteMaintenanceRecord(@PathVariable UUID id) {
         maintenanceRecordService.deleteMaintenanceRecord(id);
     }
+
+    @GetMapping("/types")
+    public List<MaintenanceType> getAllMaintenanceTypes() {return maintenanceRecordService.getAllMaintenanceTypes();}
+
+    @GetMapping("/statuses")
+    public List<MaintenanceStatus> getAllMaintenanceStatuses() {return maintenanceRecordService.getAllMaintenanceStatuses();}
 }
 

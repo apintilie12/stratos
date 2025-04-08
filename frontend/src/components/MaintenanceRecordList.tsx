@@ -7,6 +7,8 @@ import MaintenanceRecordEntry from "./MaintenanceRecordEntry.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
 import { MaintenanceRecordService } from "../services/MaintenanceRecordService.ts";
 import {useParams} from "react-router-dom";
+import MaintenanceRecordForm from "./MaintenanceRecordForm.tsx";
+import dayjs from "dayjs";
 
 const MaintenanceRecordList: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -23,8 +25,13 @@ const MaintenanceRecordList: React.FC = () => {
         const fetchMaintenanceRecords = async () => {
             try {
                 console.log(userId);
-                const records = await MaintenanceRecordService.getMaintenanceRecordsForUser(userId || "");
-                setMaintenanceRecords(records);
+                const body = await MaintenanceRecordService.getMaintenanceRecordsForUser(userId || "");
+                const parsedRecords = body.map((record) => ({
+                    ...record,
+                    startDate: dayjs.tz(record.startDate),
+                    endDate: dayjs.tz(record.endDate),
+                }));
+                setMaintenanceRecords(parsedRecords);
             } catch (error) {
                 setError(error instanceof Error ? error.message : "Unknown error");
             } finally {
@@ -133,14 +140,14 @@ const MaintenanceRecordList: React.FC = () => {
             </List>
 
             {(editingRecord || isAddingRecord) && !isConfirmingDelete && (
-                // <MaintenanceRecordForm
-                //     initialRecord={editingRecord || undefined}
-                //     onSave={handleSave}
-                //     onCancel={handleCancel}
-                //     isEditing={!!editingRecord}
-                //     apiError={formError}
-                // />
-                <div>Editing or adding + {formError}</div>
+                <MaintenanceRecordForm
+                    initialRecord={editingRecord || undefined}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                    isEditing={!!editingRecord}
+                    apiError={formError}
+                    engineerId={userId || ""}
+                />
             )}
 
             {isConfirmingDelete && (

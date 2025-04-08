@@ -3,7 +3,7 @@ import {Aircraft} from "./aircraft.types.ts";
 import {User} from "./user.types.ts";
 
 export interface MaintenanceRecord {
-    id: string;
+    id?: string;
     aircraft: Aircraft;
     engineer: User;
     type: string;

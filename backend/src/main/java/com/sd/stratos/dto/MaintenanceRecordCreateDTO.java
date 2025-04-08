@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 
 public record MaintenanceRecordCreateDTO(
    @NotNull
-   Aircraft aircraft,
+   String aircraft,
 
    @NotNull
    User engineer,

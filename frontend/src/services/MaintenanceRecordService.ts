@@ -15,6 +15,7 @@ export class MaintenanceRecordService {
         return response.json();
     }
     static async addMaintenanceRecord(record: MaintenanceRecord): Promise<MaintenanceRecord> {
+        console.log(this.baseUrl);
         const response = await fetch(this.baseUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -45,9 +46,23 @@ export class MaintenanceRecordService {
         return response.json();
     }
 
-    static async deleteMaintenanceRecord(id: string): Promise<void> {
+    static async deleteMaintenanceRecord(id: string | undefined): Promise<void> {
+        if(id === undefined)
+            return;
         const response = await fetch(`${this.baseUrl}/${id}`, { method: "DELETE" });
         if (!response.ok) throw new Error("Failed to delete maintenance record");
+    }
+
+    static async getAllMaintenanceTypes(): Promise<string[]> {
+        const response = await fetch(`${this.baseUrl}/types`);
+        if (!response.ok) throw new Error("Failed to fetch maintenance types");
+        return response.json();
+    }
+
+    static async getAllMaintenanceStatuses(): Promise<string[]> {
+        const response = await fetch(`${this.baseUrl}/statuses`);
+        if (!response.ok) throw new Error("Failed to fetch maintenance statuses");
+        return response.json();
     }
 
 }
