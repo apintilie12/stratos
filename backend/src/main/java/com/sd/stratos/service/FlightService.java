@@ -93,11 +93,15 @@ public class FlightService {
     }
 
     private void validateAssignedAircraft(Flight flight) {
-        Aircraft assignedAircraft = flight.getAircraft();
+        Optional<Aircraft> maybeAircraft = aircraftRepository.findById(flight.getAircraft().getId());
+        if (maybeAircraft.isEmpty()) {
+            throw new IllegalStateException("Aircraft not found");
+        }
+        Aircraft assignedAircraft = maybeAircraft.get();
         if (!assignedAircraft.getStatus().equals(AircraftStatus.OPERATIONAL)) {
             throw new IllegalStateException("Aircraft is not operational");
         }
-        if (flightRepository.existsOverlappingFlight(assignedAircraft, flight.getDepartureTime(), flight.getArrivalTime())) {
+        if (flightRepository.existsOverlappingFlight(flight.getId(), assignedAircraft.getId(), flight.getDepartureTime(), flight.getArrivalTime())) {
             throw new IllegalStateException("Flight overlaps assigned aircraft's existing flight");
         }
         Optional<Flight> maybeLastFlight = flightRepository.findLastFlightBefore(assignedAircraft, flight.getDepartureTime());

@@ -100,37 +100,87 @@ public class FlightServiceTests {
     @Test
     void testAddFlightWithSameDepartureAndArrivalAirport() {
         /// Given:
-        FlightCreateDTO flightCreateDTO = new FlightCreateDTO("FL125", "OTP", "OTP", ZonedDateTime.now().plusHours(2), ZonedDateTime.now().plusHours(6), "YR-ABC");
+        String registrationNumber = "YR-ABC";
+        Aircraft aircraft = new Aircraft(UUID.randomUUID(), registrationNumber, AircraftType.A320, AircraftStatus.OPERATIONAL);
+
+        FlightCreateDTO flightCreateDTO = new FlightCreateDTO(
+                "FL125", "OTP", "OTP", ZonedDateTime.now().plusHours(2), ZonedDateTime.now().plusHours(6), registrationNumber
+        );
 
         /// When:
-        lenient().when(aircraftRepository.findById(any())).thenReturn(Optional.of(new Aircraft()));
-        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(new Aircraft());
+        when(flightRepository.findByFlightNumber("FL125")).thenReturn(null);
+        when(aircraftRepository.findById(any())).thenReturn(Optional.of(aircraft));
+        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
 
         /// Then:
         assertThrows(InvalidFlightEndpointsException.class, () -> flightService.addFlight(flightCreateDTO));
     }
 
+
+    @Test
+    void testAddFlightWithOverlappingSchedule() {
+        /// Given:
+        String registrationNumber = "YR-ABC";
+        Aircraft aircraft = new Aircraft(UUID.randomUUID(), registrationNumber, AircraftType.A320, AircraftStatus.OPERATIONAL);
+
+        ZonedDateTime newDeparture = ZonedDateTime.now().plusHours(4);
+        ZonedDateTime newArrival = ZonedDateTime.now().plusHours(8);
+        FlightCreateDTO overlappingFlightDTO = new FlightCreateDTO(
+                "FL999", "OTP", "JFK", newDeparture, newArrival, registrationNumber
+        );
+
+        /// When:
+        when(flightRepository.findByFlightNumber("FL999")).thenReturn(null);
+        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
+        when(aircraftRepository.findById(any())).thenReturn(Optional.of(aircraft));
+        when(flightRepository.existsOverlappingFlight(null, aircraft.getId(), newDeparture, newArrival)).thenReturn(true);
+
+        /// Then:
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> flightService.addFlight(overlappingFlightDTO));
+        assertEquals("Flight overlaps assigned aircraft's existing flight", ex.getMessage());
+
+        verify(flightRepository).existsOverlappingFlight(null, aircraft.getId(), newDeparture, newArrival);
+    }
+
+
+
     @Test
     void testUpdateFlight() {
         /// Given:
         UUID flightId = UUID.randomUUID();
-        Aircraft aircraft = new Aircraft();
-        FlightUpdateDTO flightUpdateDTO = new FlightUpdateDTO(flightId, "FL126", "OTP", "JFK", ZonedDateTime.now().plusHours(3), ZonedDateTime.now().plusHours(7), aircraft);
-        Flight existingFlight = new Flight(flightId, "FL126", "OTP", "LHR", ZonedDateTime.now().plusHours(2), ZonedDateTime.now().plusHours(6), aircraft);
-        Flight updatedFlight = new Flight(flightId, "FL126", "OTP", "JFK", flightUpdateDTO.departureTime(), flightUpdateDTO.arrivalTime(), aircraft);
+        String registrationNumber = "YR-ABC";
+        Aircraft aircraft = new Aircraft(UUID.randomUUID(), registrationNumber, AircraftType.A320, AircraftStatus.OPERATIONAL);
+
+        ZonedDateTime departureTime = ZonedDateTime.now().plusHours(3);
+        ZonedDateTime arrivalTime = ZonedDateTime.now().plusHours(7);
+
+        FlightUpdateDTO flightUpdateDTO = new FlightUpdateDTO(
+                flightId, "FL126", "OTP", "JFK", departureTime, arrivalTime, aircraft
+        );
+
+        Flight existingFlight = new Flight(
+                flightId, "FL126", "OTP", "LHR", ZonedDateTime.now().plusHours(2), ZonedDateTime.now().plusHours(6), aircraft
+        );
+
+        Flight updatedFlight = new Flight(
+                flightId, "FL126", "OTP", "JFK", departureTime, arrivalTime, aircraft
+        );
 
         /// When:
         when(flightRepository.findById(flightId)).thenReturn(Optional.of(existingFlight));
-        lenient().when(aircraftRepository.findById(any())).thenReturn(Optional.of(new Aircraft()));
-        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(new Aircraft());
+        when(aircraftRepository.findById(aircraft.getId())).thenReturn(Optional.of(aircraft));
+        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
+        when(flightRepository.existsOverlappingFlight(existingFlight.getId(), aircraft.getId(), departureTime, arrivalTime)).thenReturn(false);
+        when(flightRepository.findLastFlightBefore(aircraft, departureTime)).thenReturn(Optional.empty());
         when(flightRepository.save(any(Flight.class))).thenReturn(updatedFlight);
-        Flight result = flightService.updateFlight(flightId, flightUpdateDTO);
 
         /// Then:
+        Flight result = flightService.updateFlight(flightId, flightUpdateDTO);
         assertEquals(updatedFlight, result);
         verify(flightRepository, times(1)).findById(flightId);
         verify(flightRepository, times(1)).save(any(Flight.class));
     }
+
 
     @Test
     void testDeleteFlight() {

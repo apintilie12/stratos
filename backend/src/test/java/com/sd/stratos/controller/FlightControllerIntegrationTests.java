@@ -113,6 +113,28 @@ public class FlightControllerIntegrationTests {
     }
 
     @Test
+    void testAddFlight_WithOverlappingSchedule_ShouldFail() throws Exception {
+        String overlappingFlightJSON = """
+    {
+        "flightNumber": "LH999",
+        "departureAirport": "ORY",
+        "arrivalAirport": "LHR",
+        "departureTime": "2025-04-13T10:00:00Z",
+        "arrivalTime": "2025-04-13T14:00:00Z",
+        "aircraft": "EI-HDV"
+    }
+    """;
+
+        mockMvc.perform(post("/api/flights")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(overlappingFlightJSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Flight overlaps assigned aircraft's existing flight"));
+    }
+
+
+    @Test
     void testUpdateFlight() throws Exception {
         Flight existingFlight = flightRepository.findByFlightNumber("RO123");
         Aircraft existingAircraft = aircraftRepository.findAircraftByRegistrationNumber("EI-HDV");
@@ -141,6 +163,30 @@ public class FlightControllerIntegrationTests {
                 .andExpect(jsonPath("$.arrivalAirport").value("JFK"));
 
     }
+
+    @Test
+    void testAddFlight_WithINOPAircraft_ShouldFail() throws Exception {
+        // Given: A flight with an INOP (Retired) aircraft
+        String inopFlightJSON = """
+    {
+        "flightNumber": "LH1000",
+        "departureAirport": "ORY",
+        "arrivalAirport": "LHR",
+        "departureTime": "2025-04-13T15:00:00Z",
+        "arrivalTime": "2025-04-13T19:00:00Z",
+        "aircraft": "HA-LFY"
+    }
+    """;
+
+        // When: Trying to add a flight with the INOP aircraft
+        mockMvc.perform(post("/api/flights")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(inopFlightJSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Aircraft is not operational"));
+    }
+
 
     @Test
     void testDeleteFlight() throws Exception {

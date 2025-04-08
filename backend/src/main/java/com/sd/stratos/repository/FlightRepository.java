@@ -17,13 +17,14 @@ public interface FlightRepository extends JpaRepository<Flight, UUID> {
 
     @Query("""
         SELECT COUNT(f) > 0 FROM Flight f
-        WHERE f.aircraft = :aircraft
+        WHERE (:id IS NULL or :id <> f.id)
+        AND f.aircraft.id = :aircraftId
         AND ((f.departureTime <= :newDepartureTime AND :newDepartureTime <= f.arrivalTime) OR
              (:newDepartureTime <= f.departureTime AND f.departureTime <= :newArrivalTime) OR
              (f.departureTime <= :newDepartureTime AND :newArrivalTime <= f.arrivalTime) OR
              (:newDepartureTime <= f.departureTime AND f.arrivalTime <=  :newArrivalTime))
     """)
-    boolean existsOverlappingFlight(Aircraft aircraft, ZonedDateTime newDepartureTime, ZonedDateTime newArrivalTime);
+    boolean existsOverlappingFlight(UUID id, UUID aircraftId, ZonedDateTime newDepartureTime, ZonedDateTime newArrivalTime);
 
     @Query("""
         SELECT f FROM Flight f
