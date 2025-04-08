@@ -3,13 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, Box, Button, CircularProgress, List, ListItem, Paper, Typography } from "@mui/material";
 import * as React from "react";
 import MaintenanceRecordEntry from "./MaintenanceRecordEntry.tsx";
-// import MaintenanceRecordForm from "./MaintenanceRecordForm.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
 import { MaintenanceRecordService } from "../services/MaintenanceRecordService.ts";
 import MaintenanceRecordForm from "./MaintenanceRecordForm.tsx";
 import dayjs from "dayjs";
 
-// Accept engineerId as a prop
 interface MaintenanceRecordListProps {
     engineerId: string;
 }
@@ -24,22 +22,23 @@ const MaintenanceRecordList: React.FC<MaintenanceRecordListProps> = ({engineerId
     const [isConfirmingDelete, setIsConfirmingDelete] = useState<boolean>(false);
     const [formError, setFormError] = useState<string | null>(null);
 
+    const fetchMaintenanceRecords = async () => {
+        try {
+            const body = await MaintenanceRecordService.getMaintenanceRecordsForUser(engineerId || "");
+            const parsedRecords = body.map((record) => ({
+                ...record,
+                startDate: dayjs.tz(record.startDate),
+                endDate: dayjs.tz(record.endDate),
+            }));
+            setMaintenanceRecords(parsedRecords);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Unknown error");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchMaintenanceRecords = async () => {
-            try {
-                const body = await MaintenanceRecordService.getMaintenanceRecordsForUser(engineerId || "");
-                const parsedRecords = body.map((record) => ({
-                    ...record,
-                    startDate: dayjs.tz(record.startDate),
-                    endDate: dayjs.tz(record.endDate),
-                }));
-                setMaintenanceRecords(parsedRecords);
-            } catch (error) {
-                setError(error instanceof Error ? error.message : "Unknown error");
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchMaintenanceRecords();
     }, []);
 
@@ -66,6 +65,7 @@ const MaintenanceRecordList: React.FC<MaintenanceRecordListProps> = ({engineerId
         } else {
             await handleAdd(record);
         }
+        fetchMaintenanceRecords();
     };
 
     const handleEdit = async (updatedRecord: MaintenanceRecord) => {

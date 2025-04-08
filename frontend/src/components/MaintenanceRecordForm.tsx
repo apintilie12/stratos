@@ -26,7 +26,7 @@ const MaintenanceRecordForm: React.FC<MaintenanceRecordFormProps> = ({
     const defaultRecord: MaintenanceRecord = {
         id: undefined,
         aircraft: { registrationNumber: "", type: "", status: "" },
-        engineer: {id: engineerId, username: "", role:"ENGINEER", password:""},
+        engineer: engineerId,
         type: "",
         startDate: dayjs(),
         endDate: dayjs(),
@@ -53,6 +53,7 @@ const MaintenanceRecordForm: React.FC<MaintenanceRecordFormProps> = ({
         setFormState(prevState => ({
             ...prevState,
             [name]: value,
+            engineer: engineerId,
         }));
     };
 

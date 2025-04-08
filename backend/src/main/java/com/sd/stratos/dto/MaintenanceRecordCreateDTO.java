@@ -1,19 +1,18 @@
 package com.sd.stratos.dto;
 
-import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.entity.MaintenanceStatus;
 import com.sd.stratos.entity.MaintenanceType;
-import com.sd.stratos.entity.User;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 public record MaintenanceRecordCreateDTO(
    @NotNull
    String aircraft,
 
    @NotNull
-   User engineer,
+   UUID engineer,
 
    @NotNull
    ZonedDateTime startDate,

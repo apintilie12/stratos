@@ -2,13 +2,11 @@ package com.sd.stratos.service;
 
 import com.sd.stratos.dto.MaintenanceRecordCreateDTO;
 import com.sd.stratos.dto.MaintenanceRecordUpdateDTO;
-import com.sd.stratos.entity.Aircraft;
-import com.sd.stratos.entity.MaintenanceRecord;
-import com.sd.stratos.entity.MaintenanceStatus;
-import com.sd.stratos.entity.MaintenanceType;
+import com.sd.stratos.entity.*;
 import com.sd.stratos.exception.InvalidTimeIntervalException;
 import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.MaintenanceRecordRepository;
+import com.sd.stratos.repository.UserRepository;
 import com.sd.stratos.specification.MaintenanceRecordSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -24,6 +22,7 @@ import java.util.UUID;
 public class MaintenanceRecordService {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final AircraftRepository aircraftRepository;
+    private final UserRepository userRepository;
 
     public List<MaintenanceRecord> getMaintenanceRecords(
             MaintenanceStatus status,
@@ -56,11 +55,15 @@ public class MaintenanceRecordService {
     public MaintenanceRecord addMaintenanceRecord(MaintenanceRecordCreateDTO maintenanceRecordCreateDTO) {
         MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
         Aircraft maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecordCreateDTO.aircraft());
-        if(maybeAircraft == null) {
+        if (maybeAircraft == null) {
             throw new IllegalStateException("Aircraft not found");
         }
         maintenanceRecord.setAircraft(maybeAircraft);
-        maintenanceRecord.setEngineer(maintenanceRecordCreateDTO.engineer());
+        Optional<User> maybeUser = userRepository.findById(maintenanceRecordCreateDTO.engineer());
+        if (maybeUser.isEmpty()) {
+            throw new IllegalStateException("User not found");
+        }
+        maintenanceRecord.setEngineer(maybeUser.get());
         maintenanceRecord.setStartDate(maintenanceRecordCreateDTO.startDate());
         maintenanceRecord.setEndDate(maintenanceRecordCreateDTO.endDate());
         maintenanceRecord.setType(maintenanceRecordCreateDTO.type());
@@ -90,11 +93,18 @@ public class MaintenanceRecordService {
     }
 
     private void validateMaintenanceRecord(MaintenanceRecord maintenanceRecord) {
-        if(maintenanceRecord == null) {
+        if (maintenanceRecord == null) {
             return;
         }
-        if(maintenanceRecord.getStartDate().isAfter(maintenanceRecord.getEndDate())) {
+        if (maintenanceRecord.getStartDate().isAfter(maintenanceRecord.getEndDate())) {
             throw new InvalidTimeIntervalException("Start date after end date");
+        }
+        if (maintenanceRecordRepository.existsOverlappingMaintenance(
+                maintenanceRecord.getId(),
+                maintenanceRecord.getAircraft().getId(),
+                maintenanceRecord.getStartDate(),
+                maintenanceRecord.getEndDate())) {
+            throw new IllegalStateException("Overlaps existing maintenance");
         }
     }
 
