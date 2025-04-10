@@ -3,6 +3,11 @@ import {useNavigate} from "react-router-dom";
 import {TextField, Button, Typography, Container, Paper, Alert, useTheme} from "@mui/material";
 import {User} from "../types/user.types.ts"
 
+interface LoginResponse {
+    user: User;
+    token: string;
+}
+
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -22,16 +27,17 @@ const LoginPage: React.FC = () => {
                 body: JSON.stringify({username, password}),
             });
 
-            const user: User = await response.json();
+            const loginResponse: LoginResponse = await response.json();
             if (response.ok) {
-                localStorage.setItem("userRole", user.role);
-                console.log("User:" + user)
-                switch (user.role) {
+                localStorage.setItem("userRole", loginResponse.user.role);
+                sessionStorage.setItem("token", loginResponse.token);
+                console.log("User:" + loginResponse.user)
+                switch (loginResponse.user.role) {
                     case "ADMIN":
                         navigate("/admin/dashboard");
                         break;
                     case "ENGINEER":
-                        navigate(`/engineer/dashboard/${user.id}`);
+                        navigate(`/engineer/dashboard/${loginResponse.user.id}`);
                         break;
                     case "PILOT":
                         setError("Login as PILOT");
