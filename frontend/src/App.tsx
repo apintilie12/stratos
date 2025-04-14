@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import {CssBaseline, ThemeProvider} from "@mui/material";
 import theme from "./styles/theme.ts"
 import EngineerDashboard from "./pages/EngineerDashboard.tsx";
+import AuthenticatedRouteGuard from './utils/AuthenticatedRouteGuard.tsx';
 
 
 function App() {
@@ -16,8 +17,12 @@ function App() {
                 <Routes>
                     <Route path='/' element={<Navigate to="/login"/>}/>
                     <Route path='/login' element={<LoginPage/>}/>
-                    <Route path='/admin/dashboard' element={<AdminDashboard/>}/>
-                    <Route path='/engineer/dashboard/:userId' element={<EngineerDashboard/>}/>
+                    <Route element={<AuthenticatedRouteGuard requiredRole="ADMIN"/>}>
+                        <Route path='/admin/dashboard' element={<AdminDashboard/>}/>
+                    </Route>
+                    <Route element={<AuthenticatedRouteGuard requiredRole="ENGINEER"/>}>
+                        <Route path='/engineer/dashboard/:userId' element={<EngineerDashboard/>}/>
+                    </Route>
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>

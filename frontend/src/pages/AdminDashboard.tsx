@@ -20,8 +20,9 @@ const AdminDashboard: React.FC = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem("userRole");
         navigate("/");
+        sessionStorage.clear();
+        localStorage.clear();
     };
 
     const handleSectionSelect = (section: string) => {

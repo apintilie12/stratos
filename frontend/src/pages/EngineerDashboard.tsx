@@ -11,6 +11,8 @@ const EngineerDashboard: React.FC = () => {
 
     const handleLogout = () => {
         navigate("/login");
+        sessionStorage.clear();
+        localStorage.clear();
     };
 
     return (

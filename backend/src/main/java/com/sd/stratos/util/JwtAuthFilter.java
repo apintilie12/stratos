@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .getPayload();
     }
 
-    private boolean checkClaims(String token){
+    private boolean checkClaims(String token) {
         Claims claims = getAllClaimsFromToken(token);
 
         // check issuer
@@ -66,6 +66,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         log.info("Token is valid. User ID: {}, Role: {}",
                 claims.get("userId"), claims.get("role"));
         return true;
+    }
+
+    private boolean hasRequiredRole(Claims claims, String requiredRole) {
+        String role = (String) claims.get("role");
+        return role != null && role.equalsIgnoreCase(requiredRole);
     }
 
 
@@ -100,6 +105,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
+
+            // Get the claims from the token
+            Claims claims = getAllClaimsFromToken(token);
+
+            // Check if the user has the required role for the endpoint
+            String requiredRole = getRequiredRoleForPath(path);
+
+            if (requiredRole != null && !hasRequiredRole(claims, requiredRole)) {
+                // If the role doesn't match, return Forbidden
+                log.error("User with role '{}' is not authorized to access path '{}'", claims.get("role"), path);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
             filterChain.doFilter(request, response);
 
         } catch (JwtException e) {
@@ -107,5 +126,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.error("Invalid JWT token: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
+    }
+
+    // Helper method to define role-based access
+    private String getRequiredRoleForPath(String path) {
+        // This is where you can map paths to roles (admin, engineer, etc.)
+        if (path.startsWith("/api/aircraft") || path.startsWith("/api/users")) {
+            return "ADMIN";  // Only users with ADMIN role can access this
+        } else if (path.startsWith("/api/maintenance-records")) {
+            return "ENGINEER";  // Only users with ENGINEER role can access this
+        }
+
+        // Default: No role required for this path
+        return null;
     }
 }
