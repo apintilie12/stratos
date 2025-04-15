@@ -1,5 +1,6 @@
 package com.sd.stratos.service;
 
+import com.sd.stratos.dto.ExistingUserDTO;
 import com.sd.stratos.dto.UserCreateDTO;
 import com.sd.stratos.dto.UserUpdateDTO;
 import com.sd.stratos.entity.User;
@@ -7,6 +8,7 @@ import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.exception.UsernameAlreadyExistsException;
 import com.sd.stratos.repository.UserRepository;
 import com.sd.stratos.specification.UserSpecification;
+import com.sd.stratos.util.PasswordUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,18 +25,21 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public List<User> getAllUsers(String username, UserRole role, String sortBy, String sortOrder) {
+    private final PasswordUtil passwordUtil;
+
+    public List<ExistingUserDTO> getAllUsers(String username, UserRole role, String sortBy, String sortOrder) {
         Specification<User> spec = Specification.where(UserSpecification.hasUsername(username))
                 .and(UserSpecification.hasRole(role));
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
 
-        return userRepository.findAll(spec, sort);
+        List<User> allUsers = userRepository.findAll(spec, sort);
+        return allUsers.stream().map(ExistingUserDTO::from).toList();
     }
     public User addUser(UserCreateDTO userCreateDTO) {
         User user = new User();
         user.setUsername(userCreateDTO.username());
-        user.setPassword(userCreateDTO.password());
+        user.setPassword(passwordUtil.hashPassword(userCreateDTO.password()));
         user.setRole(userCreateDTO.role());
         validateUser(user);
         return userRepository.save(user);

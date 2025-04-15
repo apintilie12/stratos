@@ -1,6 +1,7 @@
 package com.sd.stratos.controller;
 
 
+import com.sd.stratos.dto.ExistingUserDTO;
 import com.sd.stratos.dto.UserCreateDTO;
 import com.sd.stratos.dto.UserUpdateDTO;
 import com.sd.stratos.entity.User;
@@ -22,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll(
+    public List<ExistingUserDTO> findAll(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) UserRole role,
             @RequestParam(defaultValue="username") String sortBy,

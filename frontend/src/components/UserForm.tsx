@@ -17,10 +17,10 @@ interface UserFormProps {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEditing, apiError }) => {
-    const defaultUser: User = { username: "", password: "", role: "" };
+    const defaultUser: User = { username: "", password: "", role: ""};
     const [formState, setFormState] = useState<User>(initialUser || defaultUser);
     const [roles, setRoles] = useState<string[]>([]);
-    const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>(initialUser?.password || '');
+    const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>('');
     const [error, setError] = useState<string | null>(apiError);
 
     useEffect(() => {
@@ -42,12 +42,10 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        if (formState.password !== confirmPasswordValue) {
+        if (!isEditing && formState.password !== confirmPasswordValue) {
             setError("Passwords do not match!");
             return;
         }
-        console.log(formState);
-        console.log(error);
         if (error !== null) {
             setError(apiError);
             return;
@@ -72,7 +70,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
                         margin="normal"
                         placeholder={isEditing ? "" : "Enter username"}
                     />
-                    <TextField
+                    {!isEditing && (<TextField
                         label="Password"
                         name="password"
                         type="password"
@@ -82,9 +80,9 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
                         fullWidth
                         required={!isEditing}
                         margin="normal"
-                        placeholder={isEditing ? "" : "Enter password"}
-                    />
-                    <TextField
+                        placeholder={"Enter password"}
+                    />)}
+                    {!isEditing && (<TextField
                         label="Confirm Password"
                         name="confirmPassword"
                         type="password"
@@ -94,8 +92,8 @@ const UserForm: React.FC<UserFormProps> = ({ initialUser, onSave, onCancel, isEd
                         fullWidth
                         required={!isEditing}
                         margin="normal"
-                        placeholder={isEditing ? "" : "Confirm password"}
-                    />
+                        placeholder={"Confirm password"}
+                    />)}
                     <TextField
                         fullWidth
                         select
