@@ -2,6 +2,7 @@ package com.sd.stratos.controller;
 
 import com.google.zxing.WriterException;
 import com.sd.stratos.dto.ExistingUserDTO;
+import com.sd.stratos.dto.OTPVerificationRequest;
 import com.sd.stratos.entity.User;
 import com.sd.stratos.repository.UserRepository;
 import com.sd.stratos.util.JwtUtil;
@@ -9,6 +10,7 @@ import com.sd.stratos.util.PasswordUtil;
 import com.sd.stratos.util.TotpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,5 +57,21 @@ public class AuthController {
         String base64QR = totpUtil.generateQRCodeBase64(otpAuthURL);
 
         return ResponseEntity.ok(base64QR);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Void> verifyOTP(@RequestBody OTPVerificationRequest request) {
+        User user = userRepository.findByUsername(request.username());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        boolean isValid = totpUtil.verifyCode(user.getUsername(), request.code(), user.getOtpSecret());
+        if (isValid) {
+            user.setOtpEnabled(true);
+            userRepository.save(user);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

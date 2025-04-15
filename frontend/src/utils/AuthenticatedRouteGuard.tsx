@@ -20,7 +20,7 @@ const AuthenticatedRouteGuard = ({ requiredRole }: { requiredRole: string }) => 
             return <Navigate to="/login" />;
         }
 
-        if (decodedToken.role !== requiredRole) {
+        if (requiredRole !== "ANY" && decodedToken.role !== requiredRole) {
             return <Navigate to="/login" />;
         }
     } catch (error) {
