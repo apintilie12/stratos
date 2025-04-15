@@ -25,5 +25,12 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
+    @Column
+    private String otpSecret;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean otpEnabled;
+
+
 }
 

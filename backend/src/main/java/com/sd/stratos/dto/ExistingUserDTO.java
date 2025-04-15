@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record ExistingUserDTO(@NotNull UUID id, @NotNull String username, @NotNull UserRole role) {
+public record ExistingUserDTO(@NotNull UUID id, @NotNull String username, @NotNull UserRole role, @NotNull boolean isOtpEnabled) {
 
     public static ExistingUserDTO from(User user) {
-        return new ExistingUserDTO(user.getId(), user.getUsername(), user.getRole());
+        return new ExistingUserDTO(user.getId(), user.getUsername(), user.getRole(), user.isOtpEnabled());
     }
 }

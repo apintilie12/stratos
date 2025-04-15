@@ -32,6 +32,9 @@ const LoginPage: React.FC = () => {
                 localStorage.setItem("userRole", loginResponse.user.role);
                 sessionStorage.setItem("token", loginResponse.token);
                 console.log("User:" + loginResponse.user)
+                if(!loginResponse.user.isOtpEnabled) {
+                    console.log("Need to enable otp");
+                }
                 switch (loginResponse.user.role) {
                     case "ADMIN":
                         navigate("/admin/dashboard");

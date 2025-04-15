@@ -3,6 +3,7 @@ export interface User {
     username: string;
     password?: string;
     role: string;
+    isOtpEnabled?: boolean;
 }
 
 export interface UserCreateDTO {

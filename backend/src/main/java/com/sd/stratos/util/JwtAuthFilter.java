@@ -119,6 +119,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
+            if (path.matches("^/api/auth/enable-otp/[^/]+$")) {
+                String[] pathSegments = path.split("/");
+                String pathUsername = pathSegments[pathSegments.length - 1];
+
+                String tokenUsername = claims.getSubject();
+
+                if (!pathUsername.equals(tokenUsername)) {
+                    log.error("Token username '{}' does not match path username '{}'", tokenUsername, pathUsername);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+            }
+
+
+
             filterChain.doFilter(request, response);
 
         } catch (JwtException e) {
