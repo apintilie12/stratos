@@ -3,6 +3,7 @@ package com.sd.stratos.controller;
 import com.google.zxing.WriterException;
 import com.sd.stratos.dto.ExistingUserDTO;
 import com.sd.stratos.dto.OTPVerificationRequest;
+import com.sd.stratos.dto.PasswordResetRequest;
 import com.sd.stratos.entity.User;
 import com.sd.stratos.repository.UserRepository;
 import com.sd.stratos.util.JwtUtil;
@@ -34,7 +35,7 @@ public class AuthController {
         User user = userRepository.findByUsername(loginRequest.getUsername());
 
         if(user != null && passwordUtil.checkPassword(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(user), "user", ExistingUserDTO.from(user)));
+            return ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(user, 60), "user", ExistingUserDTO.from(user)));
         } else {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
@@ -74,4 +75,32 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @PostMapping("/verify-otp-reset")
+    public ResponseEntity<Map<String, String>> verifyOTPReset(@RequestBody OTPVerificationRequest request) {
+        User user = userRepository.findByUsername(request.username());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        boolean isValid = totpUtil.verifyCode(user.getUsername(), request.code(), user.getOtpSecret());
+        if (isValid) {
+            return ResponseEntity.ok().body(Map.of("token", jwtUtil.generateToken(user, 5)));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
+        User user = userRepository.findByUsername(request.username());
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        String newPasswordHash = passwordUtil.hashPassword(request.password());
+        System.out.println("New password " + request.password() + " hash " + newPasswordHash);
+        user.setPassword(newPasswordHash);
+        userRepository.save(user);
+        return ResponseEntity.ok("Password updated.");
+    }
+
 }

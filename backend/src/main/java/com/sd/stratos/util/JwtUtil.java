@@ -22,7 +22,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(User user) {
+    public String generateToken(User user, int durationInMinutes) {
         return Jwts
                 .builder()
                 .subject(user.getUsername())
@@ -32,7 +32,7 @@ public class JwtUtil {
                         "userId", user.getId(),
                         "role", user.getRole()
                 ))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * durationInMinutes))
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }

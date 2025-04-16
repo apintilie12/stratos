@@ -7,6 +7,7 @@ import theme from "./styles/theme.ts"
 import EngineerDashboard from "./pages/EngineerDashboard.tsx";
 import AuthenticatedRouteGuard from './utils/AuthenticatedRouteGuard.tsx';
 import SetupOTPPageWrapper from "./utils/SetupOTPPageWrapper.tsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
                 <Routes>
                     <Route path='/' element={<Navigate to="/login"/>}/>
                     <Route path='/login' element={<LoginPage/>}/>
+                    <Route path='/forgot-password' element={<ForgotPasswordPage/>}/>
                     <Route element={<AuthenticatedRouteGuard requiredRole="ANY"/>}>
                         <Route path='/enable-otp' element={<SetupOTPPageWrapper />}/>
                     </Route>

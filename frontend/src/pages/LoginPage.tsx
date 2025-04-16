@@ -77,6 +77,16 @@ const LoginPage: React.FC = () => {
                     <Button type="submit" variant="contained" color="primary" fullWidth sx={{mt: 3}}>
                         Login
                     </Button>
+                    <Button
+                        onClick={() => navigate('/forgot-password')}
+                        variant="text"
+                        color="primary"
+                        fullWidth
+                        sx={{mt: 1, textTransform: 'none'}}
+                    >
+                        Forgot password?
+                    </Button>
+
                 </form>
             </Paper>
         </Container>

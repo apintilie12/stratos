@@ -28,10 +28,21 @@ export class AuthService {
     }
 
     static async verifyOTP(username: string, code: string) {
-        const apiURL = import.meta.env.VITE_APP_API_URL;
-        return await api.post(`${apiURL}/auth/verify-otp`, {
+        return await api.post(`${this.baseUrl}/verify-otp`, {
             username,
             code,
         });
+    }
+
+    static async verifyOTPReset(username: string, code: string) {
+        return await api.post(`${this.baseUrl}/verify-otp-reset`, {
+            username,
+            code,
+        })
+    }
+
+    static async resetPassword(username: string, password: string): Promise<void> {
+        const response = await api.post(`${this.baseUrl}/reset-password`, {username, password});
+        return response.data;
     }
 }
