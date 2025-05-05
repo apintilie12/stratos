@@ -34,7 +34,7 @@ public class FlightService {
     }
 
     public Flight addFlight(FlightCreateDTO flightCreateDTO) {
-        if (flightRepository.findByFlightNumber(flightCreateDTO.flightNumber()) != null) {
+        if (flightRepository.findByFlightNumber(flightCreateDTO.flightNumber()).isPresent()) {
             throw new FlightNumberAlreadyExistsException("Flight number already exists");
         }
         Flight flightToAdd = new Flight();
@@ -43,11 +43,11 @@ public class FlightService {
         flightToAdd.setDepartureTime(flightCreateDTO.departureTime());
         flightToAdd.setDepartureAirport(flightCreateDTO.departureAirport());
         flightToAdd.setArrivalAirport(flightCreateDTO.arrivalAirport());
-        Aircraft potentialAircraft = aircraftRepository.findAircraftByRegistrationNumber(flightCreateDTO.aircraft());
-        if (potentialAircraft == null) {
+        Optional<Aircraft> maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(flightCreateDTO.aircraft());
+        if (maybeAircraft.isEmpty()) {
             throw new IllegalArgumentException("Aircraft not found");
         }
-        flightToAdd.setAircraft(potentialAircraft);
+        flightToAdd.setAircraft(maybeAircraft.get());
         validateFlight(flightToAdd);
         return flightRepository.save(flightToAdd);
     }

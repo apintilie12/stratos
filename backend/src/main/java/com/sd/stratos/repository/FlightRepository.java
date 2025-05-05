@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, UUID> {
 
-    Flight findByFlightNumber(String flightNumber);
+    Optional<Flight> findByFlightNumber(String flightNumber);
 
     @Query("""
         SELECT COUNT(f) > 0 FROM Flight f

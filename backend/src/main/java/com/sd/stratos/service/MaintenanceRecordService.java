@@ -54,11 +54,11 @@ public class MaintenanceRecordService {
 
     public MaintenanceRecord addMaintenanceRecord(MaintenanceRecordCreateDTO maintenanceRecordCreateDTO) {
         MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
-        Aircraft maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecordCreateDTO.aircraft());
-        if (maybeAircraft == null) {
+        Optional<Aircraft> maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecordCreateDTO.aircraft());
+        if (maybeAircraft.isEmpty()) {
             throw new IllegalStateException("Aircraft not found");
         }
-        maintenanceRecord.setAircraft(maybeAircraft);
+        maintenanceRecord.setAircraft(maybeAircraft.get());
         Optional<User> maybeUser = userRepository.findById(maintenanceRecordCreateDTO.engineer());
         if (maybeUser.isEmpty()) {
             throw new IllegalStateException("User not found");
@@ -76,11 +76,11 @@ public class MaintenanceRecordService {
         Optional<MaintenanceRecord> existingMaintenanceRecord = maintenanceRecordRepository.findById(id);
         if (existingMaintenanceRecord.isPresent()) {
             MaintenanceRecord updatedMaintenanceRecord = existingMaintenanceRecord.get();
-            Aircraft aircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecord.aircraft());
-            if(aircraft == null) {
+            Optional<Aircraft> maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecord.aircraft());
+            if(maybeAircraft.isEmpty()) {
                 throw new IllegalStateException("Aircraft not found");
             }
-            updatedMaintenanceRecord.setAircraft(aircraft);
+            updatedMaintenanceRecord.setAircraft(maybeAircraft.get());
             Optional<User> maybeEngineer = userRepository.findById(UUID.fromString(maintenanceRecord.engineer()));
             if(maybeEngineer.isEmpty()) {
                 throw new IllegalStateException("User not found");

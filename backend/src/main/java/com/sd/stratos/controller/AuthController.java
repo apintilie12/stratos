@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -32,21 +33,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody User loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername());
-
-        if(user != null && passwordUtil.checkPassword(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(user, 60), "user", ExistingUserDTO.from(user)));
-        } else {
+        Optional<User> maybeUser = userRepository.findByUsername(loginRequest.getUsername());
+        if (maybeUser.isEmpty()) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
+        User user = maybeUser.get();
+        return ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(user, 60), "user", ExistingUserDTO.from(user)));
     }
 
     @PostMapping("/enable-otp/{username}")
     public ResponseEntity<String> enableOtpForUser(@PathVariable String username) throws IOException, WriterException {
-        User user = userRepository.findByUsername(username);
-        if(user == null) {
+        Optional<User> maybeUser = userRepository.findByUsername(username);
+        if(maybeUser.isEmpty()) {
             return ResponseEntity.status(401).body("Invalid user");
         }
+        User user = maybeUser.get();
         if(user.getOtpSecret() == null) {
             String secret = totpUtil.generateSecret();
             user.setOtpSecret(secret);
@@ -62,10 +63,11 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<Void> verifyOTP(@RequestBody OTPVerificationRequest request) {
-        User user = userRepository.findByUsername(request.username());
-        if(user == null) {
+        Optional<User> maybeUser = userRepository.findByUsername(request.username());
+        if(maybeUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        User user = maybeUser.get();
         boolean isValid = totpUtil.verifyCode(user.getUsername(), request.code(), user.getOtpSecret());
         if (isValid) {
             user.setOtpEnabled(true);
@@ -78,10 +80,11 @@ public class AuthController {
 
     @PostMapping("/verify-otp-reset")
     public ResponseEntity<Map<String, String>> verifyOTPReset(@RequestBody OTPVerificationRequest request) {
-        User user = userRepository.findByUsername(request.username());
-        if(user == null) {
+        Optional<User> maybeUser = userRepository.findByUsername(request.username());
+        if(maybeUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        User user = maybeUser.get();
         boolean isValid = totpUtil.verifyCode(user.getUsername(), request.code(), user.getOtpSecret());
         if (isValid) {
             return ResponseEntity.ok().body(Map.of("token", jwtUtil.generateToken(user, 5)));
@@ -92,10 +95,11 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
-        User user = userRepository.findByUsername(request.username());
-        if (user == null) {
+        Optional<User> maybeUser = userRepository.findByUsername(request.username());
+        if (maybeUser.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
+        User user = maybeUser.get();
         String newPasswordHash = passwordUtil.hashPassword(request.password());
         System.out.println("New password " + request.password() + " hash " + newPasswordHash);
         user.setPassword(newPasswordHash);
