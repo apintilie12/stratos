@@ -78,10 +78,10 @@ public class MaintenanceRecordControllerIntegrationTests {
         userRepository.flush();
 
         // Fetch the Aircraft and User entities after they have been saved
-        Aircraft aircraft1 = aircraftRepository.findAircraftByRegistrationNumber("EI-HDV");
-        Aircraft aircraft2 = aircraftRepository.findAircraftByRegistrationNumber("HA-LYF");
+        Aircraft aircraft1 = aircraftRepository.findAircraftByRegistrationNumber("EI-HDV").get();
+        Aircraft aircraft2 = aircraftRepository.findAircraftByRegistrationNumber("HA-LYF").get();
 
-        User engineer = userRepository.findByUsername("u1");
+        User engineer = userRepository.findByUsername("u1").get();
 
         // Seed maintenance records
         String maintenanceRecordSeedDataJSON = loadFixture("maintenance-records-seed.json");
@@ -117,7 +117,7 @@ public class MaintenanceRecordControllerIntegrationTests {
     @Test
     void testAddMaintenanceRecord_Valid() throws Exception {
 
-        UUID userId = userRepository.findByUsername("u1").getId();
+        UUID userId = userRepository.findByUsername("u1").get().getId();
 
         String validMaintenanceRecordJSON = """
         {
@@ -141,7 +141,7 @@ public class MaintenanceRecordControllerIntegrationTests {
 
     @Test
     void testAddMaintenanceRecord_WithOverlappingMaintenance_ShouldFail() throws Exception {
-        UUID userId = userRepository.findByUsername("u1").getId();
+        UUID userId = userRepository.findByUsername("u1").get().getId();
         MaintenanceRecord existingMaintenanceRecord = maintenanceRecordRepository.findAll().getFirst();
 
         String overlappingMaintenanceRecordJSON = """

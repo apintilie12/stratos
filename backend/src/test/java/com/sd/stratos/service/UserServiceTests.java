@@ -1,16 +1,20 @@
 package com.sd.stratos.service;
 
+import com.sd.stratos.dto.ExistingUserDTO;
 import com.sd.stratos.dto.UserCreateDTO;
 import com.sd.stratos.dto.UserUpdateDTO;
 import com.sd.stratos.entity.User;
 import com.sd.stratos.entity.UserRole;
 import com.sd.stratos.exception.UsernameAlreadyExistsException;
 import com.sd.stratos.repository.UserRepository;
+import com.sd.stratos.util.PasswordUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,19 +31,21 @@ public class UserServiceTests {
     @InjectMocks
     private UserService userService;
 
+    @Mock
+    private PasswordUtil passwordUtil;
+
     @Test
     void testGetAllUsers() {
         ///Given:
         List<User> users = List.of(new User(), new User());
 
         ///When:
-        when(userRepository.findAll()).thenReturn(users);
-        List<User> result = userService.getAllUsers("",null,"","") ;
+        when(userRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(users);
+        List<ExistingUserDTO> result = userService.getAllUsers("",null,"username","asc") ;
 
         ///Then:
         assertEquals(2, result.size());
-        verify(userRepository, times(1)).findAll();
-        assertEquals(users, result);
+        verify(userRepository, times(1)).findAll(any(Specification.class), any(Sort.class));
     }
 
     @Test
@@ -58,7 +64,7 @@ public class UserServiceTests {
         savedUser.setId(UUID.randomUUID());
 
         /// When:
-        when(userRepository.save(userToAdd)).thenReturn(savedUser);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
         User result = userService.addUser(userCreateDTO);
 
         /// Then:
@@ -71,9 +77,9 @@ public class UserServiceTests {
     void testUpdateUser() {
         /// Given:
         UUID userId = UUID.randomUUID();
-        UserUpdateDTO oldUserDTO = new UserUpdateDTO(userId, "oldPassword", "newPassword", UserRole.PILOT);
+        UserUpdateDTO oldUserDTO = new UserUpdateDTO(userId, "user", "newPassword", UserRole.PILOT);
 
-        User oldUser = new User(userId, "oldPassword", "newPassword", UserRole.PILOT);
+        User oldUser = new User(userId, "user", "newPassword", UserRole.PILOT, "secret", false);
 
         User updatedUser = new User();
         updatedUser.setId(userId);
@@ -131,7 +137,7 @@ public class UserServiceTests {
         existingUser.setRole(UserRole.ADMIN);
 
         /// When:
-        when(userRepository.findByUsername("existingUsername")).thenReturn(existingUser);
+        when(userRepository.findByUsername("existingUsername")).thenReturn(Optional.of(existingUser));
 
         /// Then:
         assertThrows(UsernameAlreadyExistsException.class, () -> userService.addUser(userCreateDTO));

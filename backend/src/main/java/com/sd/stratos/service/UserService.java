@@ -70,7 +70,7 @@ public class UserService {
     }
 
     public void validateUser(User user) {
-        if(userRepository.findByUsername(user.getUsername()) != null) {
+        if(userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException("Username already exists");
         }
     }

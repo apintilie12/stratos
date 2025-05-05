@@ -110,7 +110,7 @@ public class AircraftServiceTests {
         existingAircraft.setRegistrationNumber("YR-REG");
 
         /// When:
-        when(aircraftRepository.findAircraftByRegistrationNumber("YR-REG")).thenReturn(existingAircraft);
+        when(aircraftRepository.findAircraftByRegistrationNumber("YR-REG")).thenReturn(Optional.of(existingAircraft));
 
         /// Then:
         assertThrows(AircraftRegistrationNumberAlreadyExistsException.class, () -> aircraftService.addAircraft(aircraftCreateDTO));

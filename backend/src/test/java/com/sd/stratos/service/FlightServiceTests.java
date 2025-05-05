@@ -60,9 +60,9 @@ public class FlightServiceTests {
         Flight savedFlight = new Flight(UUID.randomUUID(), "FL123", "OTP", "JFK", flightCreateDTO.departureTime(), flightCreateDTO.arrivalTime(), aircraft);
 
         /// When:
-        when(flightRepository.findByFlightNumber("FL123")).thenReturn(null);
+        when(flightRepository.findByFlightNumber("FL123")).thenReturn(Optional.empty());
         when(aircraftRepository.findById(any())).thenReturn(Optional.of(aircraft));
-        when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(aircraft);
+        when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(Optional.of(aircraft));
         when(flightRepository.save(any(Flight.class))).thenReturn(savedFlight);
         Flight result = flightService.addFlight(flightCreateDTO);
 
@@ -77,7 +77,7 @@ public class FlightServiceTests {
         FlightCreateDTO flightCreateDTO = new FlightCreateDTO("FL123", "OTP", "JFK", ZonedDateTime.now().plusHours(2), ZonedDateTime.now().plusHours(6), "YR-ABC");
 
         /// When:
-        when(flightRepository.findByFlightNumber("FL123")).thenReturn(new Flight());
+        when(flightRepository.findByFlightNumber("FL123")).thenReturn(Optional.of(new Flight()));
 
         /// Then:
         assertThrows(FlightNumberAlreadyExistsException.class, () -> flightService.addFlight(flightCreateDTO));
@@ -91,7 +91,7 @@ public class FlightServiceTests {
 
         /// When:
         lenient().when(aircraftRepository.findById(any())).thenReturn(Optional.of(new Aircraft()));
-        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(new Aircraft());
+        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(any())).thenReturn(Optional.of(new Aircraft()));
 
         /// Then:
         assertThrows(InvalidTimeIntervalException.class, () -> flightService.addFlight(flightCreateDTO));
@@ -108,9 +108,9 @@ public class FlightServiceTests {
         );
 
         /// When:
-        when(flightRepository.findByFlightNumber("FL125")).thenReturn(null);
+        when(flightRepository.findByFlightNumber("FL125")).thenReturn(Optional.empty());
         when(aircraftRepository.findById(any())).thenReturn(Optional.of(aircraft));
-        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
+        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(Optional.of(aircraft));
 
         /// Then:
         assertThrows(InvalidFlightEndpointsException.class, () -> flightService.addFlight(flightCreateDTO));
@@ -130,8 +130,8 @@ public class FlightServiceTests {
         );
 
         /// When:
-        when(flightRepository.findByFlightNumber("FL999")).thenReturn(null);
-        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
+        when(flightRepository.findByFlightNumber("FL999")).thenReturn(Optional.empty());
+        when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(Optional.of(aircraft));
         when(aircraftRepository.findById(any())).thenReturn(Optional.of(aircraft));
         when(flightRepository.existsOverlappingFlight(null, aircraft.getId(), newDeparture, newArrival)).thenReturn(true);
 
@@ -169,7 +169,7 @@ public class FlightServiceTests {
         /// When:
         when(flightRepository.findById(flightId)).thenReturn(Optional.of(existingFlight));
         when(aircraftRepository.findById(aircraft.getId())).thenReturn(Optional.of(aircraft));
-        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(aircraft);
+        lenient().when(aircraftRepository.findAircraftByRegistrationNumber(registrationNumber)).thenReturn(Optional.of(aircraft));
         when(flightRepository.existsOverlappingFlight(existingFlight.getId(), aircraft.getId(), departureTime, arrivalTime)).thenReturn(false);
         when(flightRepository.findLastFlightBefore(aircraft, departureTime)).thenReturn(Optional.empty());
         when(flightRepository.save(any(Flight.class))).thenReturn(updatedFlight);

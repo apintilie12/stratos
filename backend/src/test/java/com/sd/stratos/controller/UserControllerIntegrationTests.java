@@ -98,7 +98,7 @@ public class UserControllerIntegrationTests {
 
     @Test
     void updateUser() throws Exception {
-        User existingUser = userRepository.findByUsername("u1");
+        User existingUser = userRepository.findByUsername("u1").get();
 
         String updatedUserJSON = """
         {
@@ -126,7 +126,7 @@ public class UserControllerIntegrationTests {
 
     @Test
     void testDeleteUser() throws Exception {
-        User existingUser = userRepository.findByUsername("u1");
+        User existingUser = userRepository.findByUsername("u1").get();
 
         mockMvc.perform(delete("/api/users/" + existingUser.getId()))
                 .andExpect(status().isOk()); // HTTP 204 No Content

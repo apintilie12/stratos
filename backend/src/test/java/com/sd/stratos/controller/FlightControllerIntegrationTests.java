@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sd.stratos.entity.Aircraft;
-import com.sd.stratos.entity.AircraftType;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.FlightRepository;
@@ -22,10 +21,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -70,11 +67,11 @@ public class FlightControllerIntegrationTests {
         List<Flight> flights = objectMapper.readValue(seedDataJSON, new TypeReference<>() {});
 
         for (Flight flight : flights) {
-            Aircraft existingAircraft = aircraftRepository.findAircraftByRegistrationNumber(flight.getAircraft().getRegistrationNumber());
-            if (existingAircraft == null) {
+            Optional<Aircraft> existingAircraft = aircraftRepository.findAircraftByRegistrationNumber(flight.getAircraft().getRegistrationNumber());
+            if (existingAircraft.isEmpty()) {
                 throw new RuntimeException("Aircraft not found: " + flight.getAircraft().getRegistrationNumber());
             }
-            flight.setAircraft(existingAircraft);
+            flight.setAircraft(existingAircraft.get());
         }
 
         flightRepository.saveAll(flights);
@@ -136,8 +133,8 @@ public class FlightControllerIntegrationTests {
 
     @Test
     void testUpdateFlight() throws Exception {
-        Flight existingFlight = flightRepository.findByFlightNumber("RO123");
-        Aircraft existingAircraft = aircraftRepository.findAircraftByRegistrationNumber("EI-HDV");
+        Flight existingFlight = flightRepository.findByFlightNumber("RO123").get();
+        Aircraft existingAircraft = aircraftRepository.findAircraftByRegistrationNumber("EI-HDV").get();
 
         String updatedFlightJSON = """
         {
@@ -190,7 +187,7 @@ public class FlightControllerIntegrationTests {
 
     @Test
     void testDeleteFlight() throws Exception {
-        Flight existingFlight = flightRepository.findByFlightNumber("RO123");
+        Flight existingFlight = flightRepository.findByFlightNumber("RO123").get();
 
         mockMvc.perform(delete("/api/flights/" + existingFlight.getId()))
                 .andExpect(status().isOk());
