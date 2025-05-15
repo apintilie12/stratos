@@ -46,7 +46,7 @@ public class TotpUtil {
             byte[] key = base32.decode(secret);
             long timeWindow = Instant.now().getEpochSecond() / 30; // TOTP window (30s)
 
-            for (int i = -1; i <= 1; i++) { // allow ±1 window for slight clock drift
+            for (int i = 0; i <= 1; i++) { // allow ±1 window for slight clock drift
                 String candidate = generateTOTP(key, timeWindow + i);
                 if (candidate.equals(code)) {
                     return true;
