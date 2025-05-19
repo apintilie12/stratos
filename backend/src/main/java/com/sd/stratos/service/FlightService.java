@@ -1,15 +1,18 @@
 package com.sd.stratos.service;
 
 import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightPartialDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.entity.AircraftStatus;
+import com.sd.stratos.entity.AircraftTypeInfo;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.exception.FlightNumberAlreadyExistsException;
 import com.sd.stratos.exception.InvalidFlightEndpointsException;
 import com.sd.stratos.exception.InvalidTimeIntervalException;
 import com.sd.stratos.repository.AircraftRepository;
 import com.sd.stratos.repository.FlightRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ import java.util.UUID;
 public class FlightService {
     private final FlightRepository flightRepository;
     private final AircraftRepository aircraftRepository;
+    private final AirportService airportService;
 
     public List<Flight> getAllFlights() {
         return flightRepository.findAll();
@@ -118,5 +122,18 @@ public class FlightService {
         if (departureAirportUnreachable) {
             throw new IllegalStateException("Aircraft cannot reach departure airport");
         }
+    }
+
+    public ZonedDateTime getArrivalTime(@Valid FlightPartialDTO flightDTO) {
+        int flightDistance = airportService.getDistanceBetween(flightDTO.departureAirport(), flightDTO.arrivalAirport());
+        Optional<AircraftTypeInfo> maybeInfo = aircraftRepository.getAircraftInfo(flightDTO.aircraft());
+        if (maybeInfo.isEmpty()) {
+            throw new IllegalStateException("Aircraft not found");
+        }
+        AircraftTypeInfo info = maybeInfo.get();
+        int aircraftSpeed = info.getCruisingSpeedKnots();
+        int takeoffAndLandingDelay = 20;
+        int flightTimeInMinutes = (int)(((double)flightDistance / aircraftSpeed ) * 60) + takeoffAndLandingDelay;
+        return flightDTO.departureTime().plusMinutes(flightTimeInMinutes);
     }
 }

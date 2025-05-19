@@ -1,6 +1,7 @@
 package com.sd.stratos.controller;
 
 import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightPartialDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Flight;
 import com.sd.stratos.service.FlightService;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +33,11 @@ public class FlightController {
     @PostMapping
     public Flight createFlight(@Valid @RequestBody FlightCreateDTO flightDTO) {
         return flightService.addFlight(flightDTO);
+    }
+
+    @PostMapping("/time")
+    public ZonedDateTime getArrivalTime(@Valid @RequestBody FlightPartialDTO flightDTO) {
+        return flightService.getArrivalTime(flightDTO);
     }
 
     @PutMapping("/{id}")
