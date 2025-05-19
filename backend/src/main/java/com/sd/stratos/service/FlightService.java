@@ -65,7 +65,7 @@ public class FlightService {
             updatedFlight.setArrivalTime(flight.arrivalTime());
             updatedFlight.setDepartureAirport(flight.departureAirport());
             updatedFlight.setArrivalAirport(flight.arrivalAirport());
-            updatedFlight.setAircraft(flight.aircraft());
+            updatedFlight.setAircraft(aircraftRepository.findAircraftByRegistrationNumber(flight.aircraft()).orElse(null));
             validateFlight(updatedFlight);
             return flightRepository.save(updatedFlight);
         }
@@ -97,6 +97,9 @@ public class FlightService {
     }
 
     private void validateAssignedAircraft(Flight flight) {
+        if(flight.getAircraft() == null) {
+            throw new IllegalStateException("Aircraft not found");
+        }
         Optional<Aircraft> maybeAircraft = aircraftRepository.findById(flight.getAircraft().getId());
         if (maybeAircraft.isEmpty()) {
             throw new IllegalStateException("Aircraft not found");
@@ -121,6 +124,14 @@ public class FlightService {
         }
         if (departureAirportUnreachable) {
             throw new IllegalStateException("Aircraft cannot reach departure airport");
+        }
+        int flightDistance = airportService.getDistanceBetween(flight.getDepartureAirport(), flight.getArrivalAirport());
+        Optional<AircraftTypeInfo> maybeTypeInfo = aircraftRepository.getAircraftInfo(assignedAircraft.getRegistrationNumber());
+        if (maybeTypeInfo.isEmpty()) {
+            throw new IllegalStateException("Aircraft type info not found");
+        }
+        if(flightDistance > maybeTypeInfo.get().getCruisingDistanceMiles()) {
+            throw new IllegalStateException("Aircraft doesn't have enough range to complete flight");
         }
     }
 

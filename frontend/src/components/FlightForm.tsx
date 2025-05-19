@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import {FlightService} from "../services/FlightService.ts";
 
 
 interface FlightFormProps {
@@ -20,8 +21,8 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
         departureAirport: "",
         arrivalAirport: "",
         departureTime: dayjs(),
-        arrivalTime: dayjs(),
-        aircraft: {registrationNumber: "", type: "", status: ""}
+        arrivalTime: null,
+        aircraft: ""
     }
     const [formState, setFormState] = useState<Flight>(initialFlight || defaultFlight);
     const [error, setError] = useState<string | null>(apiError);
@@ -53,7 +54,7 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
             ...prevState,
             [name]: value,
         }));
-
+        console.log(formState);
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,11 +68,39 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
         onSave(formState);
     }
 
+    const getArrivalTime = async () => {
+        try {
+            const arrival = await FlightService.getArrivalTime(formState);
+            setFormState(prev => ({
+                ...prev,
+                arrivalTime: dayjs(arrival),
+            }));
+        } catch (err: unknown) {
+            console.error(err);
+            if (err instanceof Error) {
+                setError(err.message || "Failed to get arrival time");
+            }
+        }
+    };
+
+
     return (
         <Dialog open={true} onClose={onCancel} fullWidth maxWidth="sm">
             <DialogTitle>{isEditing ? "Edit Flight" : "Add New Flight"}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
+
+                    <TextField
+                        fullWidth
+                        label="Aircraft"
+                        name="aircraft"
+                        value={formState.aircraft}
+                        onChange={handleChange}
+                        margin="normal"
+                        variant="outlined"
+                        required
+                    />
+
                     <TextField
                         label="Flight Number"
                         name="flightNumber"
@@ -140,16 +169,24 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
                                 label="Departure Time"
                                 name="departureTime"
                                 value={isEditing ? formState.departureTime : null}
-                                onChange={(newValue) => setFormState((prev) => ({
-                                    ...prev,
-                                    departureTime: newValue || dayjs()
-                                }))}
+                                onChange={async (newValue) => {
+                                    if (!newValue) return;
+                                    const updatedFlight = {
+                                        ...formState,
+                                        departureTime: newValue,
+                                    };
+                                    setFormState(updatedFlight);
+
+                                    // Step 2: Call the API to get the arrival time
+                                    await getArrivalTime();
+                                }}
                             />
 
                             <DateTimePicker
                                 label="Arrival Time"
                                 name="arrivalTime"
-                                value={isEditing ? formState.arrivalTime : null}
+                                value={formState.arrivalTime}
+                                readOnly={true}
                                 onChange={(newValue) => setFormState((prev) => ({
                                     ...prev,
                                     arrivalTime: newValue || dayjs()
@@ -158,16 +195,6 @@ const FlightForm: React.FC<FlightFormProps> = ({initialFlight, onSave, onCancel,
                         </Box>
                     </LocalizationProvider>
 
-                    <TextField
-                        fullWidth
-                        label="Aircraft"
-                        name="aircraft"
-                        value={formState.aircraft.registrationNumber}
-                        onChange={handleChange}
-                        margin="normal"
-                        variant="outlined"
-                        required
-                    />
 
                     {error && <Alert severity="error">{error}</Alert>}
 

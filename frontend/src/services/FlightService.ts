@@ -50,4 +50,20 @@ export class FlightService {
             throw new Error(error.response?.data?.message || "Failed to delete flight");
         }
     }
+
+    static async getArrivalTime(flight: Flight): Promise<string> {
+        try {
+            const flightPayload = {
+                departureAirport: flight.departureAirport,
+                arrivalAirport: flight.arrivalAirport,
+                departureTime: flight.departureTime.toISOString(),
+                aircraft: flight.aircraft,
+            };
+            console.log("flightPayload ", flightPayload);
+            const response = await api.post(`${this.baseUrl}/arrival-time`, flightPayload);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || "Failed to get arrival time");
+        }
+    }
 }

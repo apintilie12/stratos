@@ -28,6 +28,6 @@ public record FlightUpdateDTO(
         ZonedDateTime arrivalTime,
 
         @NotNull
-        Aircraft aircraft
+        String aircraft
 ) {
 }

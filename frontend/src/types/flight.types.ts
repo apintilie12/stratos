@@ -1,4 +1,3 @@
-import {Aircraft} from "./aircraft.types.ts";
 import {Dayjs} from "dayjs";
 
 export interface Flight {
@@ -7,6 +6,6 @@ export interface Flight {
     departureAirport: string;
     arrivalAirport: string;
     departureTime: Dayjs;
-    arrivalTime: Dayjs;
-    aircraft: Aircraft;
+    arrivalTime: Dayjs | null;
+    aircraft: string;
 }

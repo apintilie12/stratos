@@ -35,7 +35,7 @@ public class FlightController {
         return flightService.addFlight(flightDTO);
     }
 
-    @PostMapping("/time")
+    @PostMapping("/arrival-time")
     public ZonedDateTime getArrivalTime(@Valid @RequestBody FlightPartialDTO flightDTO) {
         return flightService.getArrivalTime(flightDTO);
     }
