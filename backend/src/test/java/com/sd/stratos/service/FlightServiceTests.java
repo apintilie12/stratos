@@ -1,6 +1,7 @@
 package com.sd.stratos.service;
 
 import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightDisplayDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
 import com.sd.stratos.entity.AircraftStatus;
@@ -44,12 +45,11 @@ public class FlightServiceTests {
 
         /// When:
         when(flightRepository.findAll()).thenReturn(flights);
-        List<Flight> result = flightService.getAllFlights();
+        List<FlightDisplayDTO> result = flightService.getAllFlights();
 
         /// Then:
         assertEquals(2, result.size());
         verify(flightRepository, times(1)).findAll();
-        assertEquals(flights, result);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class FlightServiceTests {
         ZonedDateTime arrivalTime = ZonedDateTime.now().plusHours(7);
 
         FlightUpdateDTO flightUpdateDTO = new FlightUpdateDTO(
-                flightId, "FL126", "OTP", "JFK", departureTime, arrivalTime, aircraft
+                flightId, "FL126", "OTP", "JFK", departureTime, arrivalTime, aircraft.getRegistrationNumber()
         );
 
         Flight existingFlight = new Flight(

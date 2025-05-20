@@ -1,6 +1,7 @@
 package com.sd.stratos.service;
 
 import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightDisplayDTO;
 import com.sd.stratos.dto.FlightPartialDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Aircraft;
@@ -21,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +31,8 @@ public class FlightService {
     private final AircraftRepository aircraftRepository;
     private final AirportService airportService;
 
-    public List<Flight> getAllFlights() {
-        return flightRepository.findAll();
+    public List<FlightDisplayDTO> getAllFlights() {
+        return flightRepository.findAll().stream().map(FlightDisplayDTO::fromFlight).collect(Collectors.toList());
     }
 
     public Flight getFlightById(UUID id) {

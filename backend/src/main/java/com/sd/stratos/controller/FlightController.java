@@ -1,6 +1,7 @@
 package com.sd.stratos.controller;
 
 import com.sd.stratos.dto.FlightCreateDTO;
+import com.sd.stratos.dto.FlightDisplayDTO;
 import com.sd.stratos.dto.FlightPartialDTO;
 import com.sd.stratos.dto.FlightUpdateDTO;
 import com.sd.stratos.entity.Flight;
@@ -21,7 +22,7 @@ public class FlightController {
     private final FlightService flightService;
 
     @GetMapping
-    public List<Flight> getAllFlights() {
+    public List<FlightDisplayDTO> getAllFlights() {
         return flightService.getAllFlights();
     }
 

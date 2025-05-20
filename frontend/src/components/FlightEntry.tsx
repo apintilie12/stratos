@@ -36,7 +36,7 @@ const FlightEntry: React.FC<FlightEntryProps> = ({ flight, onEdit, onDelete }) =
                     Arrival: {flight.arrivalTime.toLocaleString()}
                 </Typography>
                 <Typography variant="h6" color="text.secondary">
-                    Aircraft: {flight.aircraft.registrationNumber} ({flight.aircraft.type})
+                    Aircraft: {flight.aircraft}
                 </Typography>
             </CardContent>
             <Box sx={{ display: "flex", gap: 1, pr: 2 }}>
