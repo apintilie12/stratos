@@ -146,7 +146,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     // Helper method to define role-based access
     private String getRequiredRoleForPath(String path) {
         // This is where you can map paths to roles (admin, engineer, etc.)
-        if (path.startsWith("/api/aircraft") || path.startsWith("/api/users")) {
+        if (path.startsWith("/api/aircraft") || path.startsWith("/api/users") || path.equals("/api/maintenance-records/audit")) {
             return "ADMIN";  // Only users with ADMIN role can access this
         } else if (path.startsWith("/api/maintenance-records")) {
             return "ENGINEER";  // Only users with ENGINEER role can access this

@@ -3,8 +3,10 @@ package com.sd.stratos.controller;
 import com.sd.stratos.dto.MaintenanceRecordCreateDTO;
 import com.sd.stratos.dto.MaintenanceRecordUpdateDTO;
 import com.sd.stratos.entity.MaintenanceRecord;
+import com.sd.stratos.entity.MaintenanceRecordLogEntry;
 import com.sd.stratos.entity.MaintenanceStatus;
 import com.sd.stratos.entity.MaintenanceType;
+import com.sd.stratos.repository.MaintenanceRecordLogEntryRepository;
 import com.sd.stratos.service.MaintenanceRecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/maintenance-records")
@@ -19,6 +22,7 @@ import java.util.UUID;
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class MaintenanceRecordController {
     private final MaintenanceRecordService maintenanceRecordService;
+    private final MaintenanceRecordLogEntryRepository maintenanceRecordLogEntryRepository;
 
     @GetMapping
     public List<MaintenanceRecord> getMaintenanceRecords(
@@ -57,5 +61,10 @@ public class MaintenanceRecordController {
 
     @GetMapping("/statuses")
     public List<MaintenanceStatus> getAllMaintenanceStatuses() {return maintenanceRecordService.getAllMaintenanceStatuses();}
+
+    @GetMapping("/audit")
+    public List<String> getAllMaintenanceRecordLogEntries() {
+        return maintenanceRecordLogEntryRepository.findAll().stream().map(MaintenanceRecordLogEntry::toString).collect(Collectors.toList());
+    }
 }
 

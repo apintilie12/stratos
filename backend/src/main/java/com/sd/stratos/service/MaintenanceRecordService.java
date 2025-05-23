@@ -5,14 +5,17 @@ import com.sd.stratos.dto.MaintenanceRecordUpdateDTO;
 import com.sd.stratos.entity.*;
 import com.sd.stratos.exception.InvalidTimeIntervalException;
 import com.sd.stratos.repository.AircraftRepository;
+import com.sd.stratos.repository.MaintenanceRecordLogEntryRepository;
 import com.sd.stratos.repository.MaintenanceRecordRepository;
 import com.sd.stratos.repository.UserRepository;
 import com.sd.stratos.specification.MaintenanceRecordSpecification;
+import com.sd.stratos.util.MaintenanceRecordDiffUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +26,7 @@ public class MaintenanceRecordService {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final AircraftRepository aircraftRepository;
     private final UserRepository userRepository;
+    private final MaintenanceRecordLogEntryRepository maintenanceRecordLogEntryRepository;
 
     public List<MaintenanceRecord> getMaintenanceRecords(
             MaintenanceStatus status,
@@ -69,13 +73,17 @@ public class MaintenanceRecordService {
         maintenanceRecord.setType(maintenanceRecordCreateDTO.type());
         maintenanceRecord.setStatus(maintenanceRecordCreateDTO.status());
         validateMaintenanceRecord(maintenanceRecord);
-        return maintenanceRecordRepository.save(maintenanceRecord);
+        MaintenanceRecord result = maintenanceRecordRepository.save(maintenanceRecord);
+        MaintenanceRecordLogEntry maintenanceRecordLogEntry = new MaintenanceRecordLogEntry(ActionType.CREATED, result.getId(), result.getAircraft().getRegistrationNumber(), result.getEngineer().getUsername(), LocalDateTime.now(), "");
+        maintenanceRecordLogEntryRepository.save(maintenanceRecordLogEntry);
+        return result;
     }
 
     public MaintenanceRecord updateMaintenanceRecord(UUID id, MaintenanceRecordUpdateDTO maintenanceRecord) {
         Optional<MaintenanceRecord> existingMaintenanceRecord = maintenanceRecordRepository.findById(id);
         if (existingMaintenanceRecord.isPresent()) {
             MaintenanceRecord updatedMaintenanceRecord = existingMaintenanceRecord.get();
+            MaintenanceRecord originalCopy = copyRecord(updatedMaintenanceRecord);
             Optional<Aircraft> maybeAircraft = aircraftRepository.findAircraftByRegistrationNumber(maintenanceRecord.aircraft());
             if(maybeAircraft.isEmpty()) {
                 throw new IllegalStateException("Aircraft not found");
@@ -91,13 +99,21 @@ public class MaintenanceRecordService {
             updatedMaintenanceRecord.setStartDate(maintenanceRecord.startDate());
             updatedMaintenanceRecord.setEndDate(maintenanceRecord.endDate());
             validateMaintenanceRecord(updatedMaintenanceRecord);
-            return maintenanceRecordRepository.save(updatedMaintenanceRecord);
+            MaintenanceRecord result = maintenanceRecordRepository.save(updatedMaintenanceRecord);
+            MaintenanceRecordLogEntry maintenanceRecordLogEntry = new MaintenanceRecordLogEntry(ActionType.UPDATED, result.getId(), result.getAircraft().getRegistrationNumber(), result.getEngineer().getUsername(), LocalDateTime.now(), MaintenanceRecordDiffUtil.diffRecords(originalCopy, result));
+            maintenanceRecordLogEntryRepository.save(maintenanceRecordLogEntry);
+            return result;
         }
         throw new IllegalStateException("Could not find maintenance record with id: " + id);
     }
 
     public void deleteMaintenanceRecord(UUID id) {
-        maintenanceRecordRepository.deleteById(id);
+        MaintenanceRecord maintenanceRecord = maintenanceRecordRepository.findById(id).orElse(null);
+        if (maintenanceRecord != null) {
+            MaintenanceRecordLogEntry maintenanceRecordLogEntry = new MaintenanceRecordLogEntry(ActionType.DELETED, maintenanceRecord.getId(), maintenanceRecord.getAircraft().getRegistrationNumber(),maintenanceRecord.getEngineer().getUsername(), LocalDateTime.now(), "");
+            maintenanceRecordLogEntryRepository.save(maintenanceRecordLogEntry);
+            maintenanceRecordRepository.deleteById(id);
+        }
     }
 
     private void validateMaintenanceRecord(MaintenanceRecord maintenanceRecord) {
@@ -123,4 +139,17 @@ public class MaintenanceRecordService {
     public List<MaintenanceStatus> getAllMaintenanceStatuses() {
         return List.of(MaintenanceStatus.values());
     }
+
+    private static MaintenanceRecord copyRecord(MaintenanceRecord record) {
+        MaintenanceRecord copy = new MaintenanceRecord();
+        copy.setId(record.getId());
+        copy.setAircraft(record.getAircraft());
+        copy.setEngineer(record.getEngineer());
+        copy.setType(record.getType());
+        copy.setStatus(record.getStatus());
+        copy.setStartDate(record.getStartDate());
+        copy.setEndDate(record.getEndDate());
+        return copy;
+    }
+
 }
